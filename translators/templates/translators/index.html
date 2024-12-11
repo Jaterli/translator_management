@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Panel del Traductor</h2>
+    <div class="list-group">
+        <a href="{% url 'profile' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1">Perfil del Traductor</h5>
+                <p class="mb-0 text-muted">Accede a la información básica del perfil del traductor, como nombre, correo electrónico y dirección.</p>
+            </div>
+            <span class="badge badge-primary badge-pill">Ir</span>
+        </a>
+
+        <a href="{% url 'professional-profile-detail' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1">Formación y experiencia</h5>
+                <p class="mb-0 text-muted">Edita detalles relacionados con tu perfil profesional, como formación académica, experiencia laboral y herramientas utilizadas.</p>
+            </div>
+            <span class="badge badge-primary badge-pill">Ir</span>
+        </a>
+
+        <a href="{% url 'language-combinations-list' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1">Combinaciones de Idiomas</h5>
+                <p class="mb-0 text-muted">Gestiona las combinaciones de idiomas que ofreces, incluyendo idioma de origen, idioma destino y tarifas.</p>
+            </div>
+            <span class="badge badge-primary badge-pill">Ir</span>
+        </a>
+
+        <a href="{% url 'files' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1">Documentos</h5>
+                <p class="mb-0 text-muted">Sube y revisa documentos importantes como tu currículum vitae y notas de voz de demostración.</p>
+            </div>
+            <span class="badge badge-primary badge-pill">Ir</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

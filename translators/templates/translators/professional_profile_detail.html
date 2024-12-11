@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil profesional{% endblock %}
+{% block pagetitle %}Perfil profesional{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <div class="row">
+            <!-- Primera Columna -->
+            <div class="col-md-6">
+                <h5 class="text-secondary fw-bold">Información Personal</h5>
+                <hr>
+                <p class="mb-3">
+                    <strong>Lenguas Nativas:</strong> 
+                    {{ professional_profile.native_languages|default:"No especificado" }}
+                </p>
+                <p class="mb-3">
+                    <strong>Educación:</strong> 
+                    {{ professional_profile.education|default:"No especificado" }}
+                </p>
+                <p class="mb-3">
+                    <strong>Grado:</strong> 
+                    {{ professional_profile.degree|default:"No especificado" }}
+                </p>
+            </div>
+
+            <!-- Segunda Columna -->
+            <div class="col-md-6">
+                <h5 class="text-secondary fw-bold">Experiencia y Herramientas</h5>
+                <hr>
+                <p class="mb-3">
+                    <strong>Situación Laboral:</strong> 
+                    {{ professional_profile.get_employment_status_display|default:"No especificado" }}
+                </p>
+                <p class="mb-3">
+                    <strong>Experiencia:</strong> 
+                    {{ professional_profile.get_experience_display|default:"No especificado" }}
+                </p>
+                <p class="mb-3">
+                    <strong>Softwares:</strong> 
+                    {{ professional_profile.softwares|default:"No especificado" }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="mt-4 text-center">
+            <a href="{% url 'professional-profile-edit' %}" class="btn btn-primary px-4 py-2">
+                Editar Perfil
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
