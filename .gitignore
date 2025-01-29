@@ -1,0 +1,16 @@
+# Global
+*.log
+node_modules/
+.vscode/
+.idea/
+
+# Python
+backend/venv/
+backend/env/
+backend/__pycache__/
+*.pyc
+db.sqlite3
+
+# React
+frontend/node_modules/
+frontend/.env
