@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-
-const API_BASE_URL = 'http://localhost:8000/queries/api/';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 
 export async function getFields() {
+  console.log(`${API_BASE_URL}get_fields/`);
   const response = await fetch(`${API_BASE_URL}get_fields/`);
   return response.json();
 }
