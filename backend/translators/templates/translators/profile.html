@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil de traductor{% endblock %}
+{% block pagetitle %}Perfil de traductor{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 pb-4">
+                <h5 class="card-title">Información Personal</h5>
+                <hr>
+                <ul class="list-unstyled">
+                    <li><strong>Nombre:</strong> {{ translator.first_name }}</li>
+                    <li><strong>Apellidos:</strong> {{ translator.last_name }}</li>
+                    <li><strong>Email:</strong> {{ translator.email }}</li>
+                    <li><strong>Género:</strong> {{ translator.gender }}</li>
+                    <li><strong>Fecha de nacimiento:</strong> {{ translator.birth_date }}</li>
+                    <li><a href="{% url 'change-pw' %}" class="link-primary">Cambiar Contraseña de acceso</a></li>
+
+                </ul>
+            </div>
+            <div class="col-md-6 pb-4">
+                <h5 class="card-title">Localización y contacto</h5>
+                <hr>
+                <ul class="list-unstyled">
+                    <li><strong>Dirección:</strong> {{ translator.address }}</li>
+                    <li><strong>Código Postal:</strong> {{ translator.postal_code }}</li>
+                    <li><strong>Provincia:</strong> {{ translator.province }}</li>
+                    <li><strong>País:</strong> {{ translator.country }}</li>
+                    <li><strong>Nº Tlf Móvil:</strong> {{ translator.mobile_phone }}</li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <ul class="list-unstyled">
+            <li><strong>Fecha de alta:</strong> {{ translator.registration_date }}</li>
+            <li><strong>Último acceso:</strong> {{ translator.last_access }}</li>
+        </ul>
+        <div class="text-center mt-4">
+            <a href="{% url 'translator-edit' %}" class="btn btn-primary">Editar Perfil</a>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <a href="{% url 'translator-account-delete' %}" class="link-danger">Haz clic aquí si deseas dar de baja tu cuenta</a>
+</div>
+{% endblock %}

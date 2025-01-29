@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Currículum y Nota de Voz{% endblock %}
+{% block pagetitle %}Gestión de Currículum y Nota de Voz{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <!-- Currículum -->
+    <div class="mb-3">
+        {% if files.cv_file %}
+            <p>
+                <strong>Currículum actual:</strong>
+                <a href="{{ files.cv_file.url }}" target="_blank">Ver archivo</a>
+                |
+                <a href="{% url 'delete-cv' %}" class="link-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este currículum?');">
+                    Eliminar currículum
+                </a>
+            </p>
+        {% else %}
+            <label for="id_cv_file">Subir Currículum:</label>
+            {{ form.cv_file }}
+            <!-- Mostrar errores del campo -->
+            {% if form.cv_file.errors %}
+                <div class="text-danger">
+                    {{ form.cv_file.errors|join:" " }}
+                </div>
+            {% endif %}                
+        {% endif %}
+    </div>
+
+    <!-- Nota de voz -->
+    <div class="mb-3">
+        {% if files.voice_note %}
+            <p>
+                <strong>Nota de voz actual:</strong>
+                <audio controls>
+                    <source src="{{ files.voice_note.url }}" type="audio/mpeg">
+                    Tu navegador no soporta el elemento de audio.
+                </audio>
+                |
+                <a href="{% url 'delete-voice-note' %}" class="link-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta nota de voz?');">
+                    Eliminar nota de voz
+                </a>
+            </p>
+        {% else %}
+            <label for="id_voice_note">Subir Nota de Voz:</label>
+            {{ form.voice_note }}
+            <!-- Mostrar errores del campo -->
+            {% if form.voice_note.errors %}
+                <div class="text-danger">
+                    {{ form.voice_note.errors|join:" " }}
+                </div>
+            {% endif %}                
+        {% endif %}
+    </div>
+
+    <!-- Botón de guardar -->
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+</form>
+{% endblock %}

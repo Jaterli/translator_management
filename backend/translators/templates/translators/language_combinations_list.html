@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Combinaciones de idiomas{% endblock %}
+{% block pagetitle %}Combinaciones de idiomas{% endblock %}
+
+{% block content %}
+{% if combinations.exists %}
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered mt-3">
+            <thead class="table-light">
+                <tr>
+                    <th>Origen</th>
+                    <th>Destino</th>
+                    <th>Servicios</th>
+                    <th>Tarifa Palabra</th>
+                    <th>Tarifa Jurada</th>
+                    <th>Tarifa Hora</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for combination in combinations %}
+                    <tr>
+                        <td>{{ combination.source_language }}</td>
+                        <td>{{ combination.target_language }}</td>
+                        <td>{{ combination.services }}</td>
+                        <td>{{ combination.price_per_word|default:"-" }}</td>
+                        <td>{{ combination.sworn_price_per_word|default:"-" }}</td>
+                        <td>{{ combination.price_per_hour|default:"-" }}</td>
+                        <td class="text-center">
+                            <a href="{% url 'combination-edit' combination.id %}" class="btn btn-sm btn-primary">Editar</a>
+                            <form action="{% url 'combination-delete' combination.id %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta combinación?');">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="text-muted text-center mt-3">No tienes combinaciones registradas.</p>
+{% endif %}
+<div class="text-center mt-4">
+    <a href="{% url 'combination-add' %}" class="btn btn-success">Añadir Nueva Combinación</a>
+</div>
+{% endblock %}

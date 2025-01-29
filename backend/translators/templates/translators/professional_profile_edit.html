@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Editar perfil profesional{% endblock %}
+{% block pagetitle %}Editar perfil profesional{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- General Form Errors -->
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Native Languages (Checkboxes) -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">{{ form.native_languages.label }}</label>
+                <div class="row">
+                    {% for checkbox in form.native_languages %}
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            {{ checkbox.tag }}
+                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                {{ checkbox.choice_label }}
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if form.native_languages.errors %}
+                <div class="form-text text-danger">
+                    {% for error in form.native_languages.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Education -->
+            <div class="mb-4">
+                <label for="{{ form.education.id_for_label }}" class="form-label fw-semibold">{{ form.education.label }}</label>
+                {{ form.education|add_class:"form-select" }}
+                {% if form.education.errors %}
+                <div class="form-text text-danger">
+                    {% for error in form.education.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Degree (Initially Hidden) -->
+            <div class="mb-4" id="degree-field" style="display: none;">
+                <label for="{{ form.degree.id_for_label }}" class="form-label fw-semibold">{{ form.degree.label }}</label>
+                {{ form.degree|add_class:"form-control" }}
+                {% if form.degree.errors %}
+                <div class="form-text text-danger">
+                    {% for error in form.degree.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Employment Status -->
+            <div class="mb-4">
+                <label for="{{ form.employment_status.id_for_label }}" class="form-label fw-semibold">{{ form.employment_status.label }}</label>
+                {{ form.employment_status|add_class:"form-select" }}
+                {% if form.employment_status.errors %}
+                <div class="form-text text-danger">
+                    {% for error in form.employment_status.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Experience -->
+            <div class="mb-4">
+                <label for="{{ form.experience.id_for_label }}" class="form-label fw-semibold">{{ form.experience.label }}</label>
+                {{ form.experience|add_class:"form-select" }}
+                {% if form.experience.errors %}
+                <div class="form-text text-danger">
+                    {% for error in form.experience.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Softwares -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">{{ form.softwares.label }}</label>
+                <div class="row">
+                    {% for checkbox in form.softwares %}
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            {{ checkbox.tag }}
+                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                {{ checkbox.choice_label }}
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if form.softwares.errors %}
+                <div class="form-text text-danger">
+                    {% for error in form.softwares.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success px-4 py-2">Guardar</button>
+                <a href="{% url 'professional-profile-detail' %}" class="btn btn-secondary px-4 py-2 ms-2">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const educationField = document.querySelector('#id_education');
+        const degreeField = document.querySelector('#degree-field');
+
+        // Function to toggle degree field visibility
+        function toggleDegreeField() {
+            const value = educationField.value;
+            if (value !== 'ESO' && value !== 'Bachillerato' && value !== '') {
+                degreeField.style.display = 'block';
+            } else {
+                degreeField.style.display = 'none';
+            }
+        }
+
+        // Initialize visibility on page load
+        toggleDegreeField();
+
+        // Add event listener to education field
+        educationField.addEventListener('change', toggleDegreeField);
+
+        // Limit selection of native_languages to 2
+        const nativeLanguages = document.querySelectorAll('input[name="native_languages"]');
+        nativeLanguages.forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                const checkedBoxes = Array.from(nativeLanguages).filter(cb => cb.checked);
+                if (checkedBoxes.length > 2) {
+                    this.checked = false; // Deselect the current checkbox
+                    alert('Solo puedes seleccionar hasta 2 lenguas nativas.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
