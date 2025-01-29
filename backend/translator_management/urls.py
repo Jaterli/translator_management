@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
+    path('', include('translators.urls')),
     path('admin/', admin.site.urls),    
     path('translators/', include('translators.urls')),    
     path('accounts/logout/', LogoutView.as_view(next_page='login'), name='logout'),
