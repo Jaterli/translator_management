@@ -40,8 +40,22 @@ INSTALLED_APPS = [
     'translators',
     'queries',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,10 +68,11 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",  # React en desarrollo
-#     "http://127.0.0.1:3000",  # Alternativa local
-# ]
+CORS_ALLOWED_ORIGINS = [
+     "http://localhost:3000",  # React en desarrollo
+     "http://127.0.0.1:3000",  # Alternativa local
+     "http://localhost:5173",  # Vite (React)
+]
 
 # Alternativa más abierta para desarrollo
 CORS_ALLOW_ALL_ORIGINS = True  # Permitir todos los orígenes (¡Usar solo en desarrollo!)
@@ -162,3 +177,6 @@ EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 # EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
+STATICFILES_DIRS = [
+    BASE_DIR / "frontend/dist",  # Ruta a los archivos generados por Vite
+]

@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
+    padding: 0 0 1rem 0;
   }
   
   nav {
@@ -29,6 +29,12 @@ body {
     color: #333;
   }
 
-.fs-s{
-  font-size: 0.8em;
-}
+  .fs-custom-7{
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 768px) { 
+    .fs-custom-sm-7 {
+      font-size: 0.8rem; /* Tamaño de fuente normal */
+    }
+  }

@@ -1,26 +1,45 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { executeQuery, getQueries } from '../services/api';
-import { Table, Card, Alert, Button, Container, Form } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Table, Card, Alert, Container, Form } from 'react-bootstrap';
 import { faList, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import LinkButton from '../components/ui/LinkButton';
 
-function QueryResults() {
-  const { queryId: initialQueryId } = useParams();
-  const [queries, setQueries] = useState([]);
-  const [selectedQueryId, setSelectedQueryId] = useState(initialQueryId);
-  const [selectedQuery, setSelectedQuery] = useState(null);
-  const [query, setQuery] = useState(null);
-  const [columns, setColumns] = useState([]);
-  const [results, setResults] = useState([]);
-  const [error, setError] = useState(null);
+// Definición de tipos
+interface Query {
+  id: number;
+  name: string;
+  created_at: string;
+  query: any[];
+}
+
+interface ResultRow {
+  [key: string]: any;
+}
+
+interface FieldMapping {
+  [key: string]: {
+    [key: string]: string;
+  };
+}
+
+const QueryResults: React.FC = () => {
+  const { queryId: initialQueryId } = useParams<{ queryId: string }>();
+  const [queries, setQueries] = useState<Query[]>([]);
+  const [selectedQueryId, setSelectedQueryId] = useState<string | null>(initialQueryId || null);
+  const [selectedQuery, setSelectedQuery] = useState<Query | null>(null);
+  const [query, setQuery] = useState<string | null>(null);
+  const [columns, setColumns] = useState<string[]>([]);
+  const [results, setResults] = useState<ResultRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // Memoizamos fieldMapping para evitar recrearlo en cada renderizado
-  const fieldMapping = useMemo(() => ({
+  const fieldMapping: FieldMapping = useMemo(() => ({
     Translator: {
       first_name: "Nombre",
       email: "Email",
       country: "País",
+      postal_code: "CP",
     },
     ProfessionalProfile: {
       native_languages: "Idiomas nativos",
@@ -41,15 +60,14 @@ function QueryResults() {
     async function fetchQueries() {
       try {
         const data = await getQueries();
-        // Ordenar las consultas por fecha (created_at) de manera descendente
-        const sortedQueries = data.queries.sort((a, b) => 
-          new Date(b.created_at) - new Date(a.created_at)
+        const sortedQueries: Query[] = data.queries.sort((a: Query, b: Query) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
         setQueries(sortedQueries);
 
         // Si no hay una consulta seleccionada, seleccionar la última consulta
         if (!initialQueryId && sortedQueries.length > 0) {
-          setSelectedQueryId(sortedQueries[0].id);
+          setSelectedQueryId(sortedQueries[0].id.toString());
         }
       } catch (err) {
         console.error("Error al obtener las consultas:", err);
@@ -57,7 +75,7 @@ function QueryResults() {
       }
     }
     fetchQueries();
-  }, [initialQueryId]); // Dependencia de initialQueryId
+  }, [initialQueryId]);
 
   // Ejecutar la consulta seleccionada
   useEffect(() => {
@@ -65,15 +83,15 @@ function QueryResults() {
       if (!selectedQueryId) return;
 
       try {
-        const data = await executeQuery(selectedQueryId);
+        const data:ResultRow = await executeQuery(selectedQueryId);
         console.log("Resultado completo del JSON:", data);
 
         if (!Array.isArray(data.results)) {
           throw new Error('Los resultados no son un arreglo válido.');
         }
 
-        const extractedColumns = [];
-        const processedResults = [];
+        const extractedColumns: string[] = [];
+        const processedResults: ResultRow[] = [];
 
         Object.keys(fieldMapping).forEach(modelKey => {
           if (modelKey !== "LanguageCombination") {
@@ -88,8 +106,8 @@ function QueryResults() {
 
         extractedColumns.push("LanguageCombination");
 
-        data.results.forEach(row => {
-          const processedRow = {};
+        data.results.forEach((row: any) => {
+          const processedRow: ResultRow = {};
 
           Object.keys(row).forEach(modelKey => {
             if (modelKey !== "LanguageCombination" && fieldMapping[modelKey]) {
@@ -101,8 +119,8 @@ function QueryResults() {
           });
 
           if (row.LanguageCombination) {
-            processedRow.LanguageCombination = row.LanguageCombination.map(combination => {
-              const filteredCombination = {};
+            processedRow.LanguageCombination = row.LanguageCombination.map((combination: any) => {
+              const filteredCombination: any = {};
               Object.keys(fieldMapping.LanguageCombination).forEach(field => {
                 if (combination[field] !== undefined) {
                   filteredCombination[field] = combination[field];
@@ -115,11 +133,11 @@ function QueryResults() {
           processedResults.push(processedRow);
         });
 
-        setQuery(data.query || `Consulta #${selectedQueryId}`);
+        setQuery(data.query || `#${selectedQueryId}`);
         setColumns(extractedColumns);
         setResults(processedResults);
         setError(null);
-      } catch (err) {
+      } catch (err:any) {
         console.error("Error al procesar los resultados:", err);
         setError(err.response?.data?.error || 'Error al obtener resultados.');
       }
@@ -131,11 +149,11 @@ function QueryResults() {
   useEffect(() => {
     if (selectedQueryId) {
       const query = queries.find(q => q.id === parseInt(selectedQueryId));
-      setSelectedQuery(query);
+      setSelectedQuery(query || null);
     }
   }, [selectedQueryId, queries]);
 
-  const getAlternateColumnName = (columnKey) => {
+  const getAlternateColumnName = (columnKey: string): string => {
     const [modelKey, ...fieldParts] = columnKey.split("_");
     const field = fieldParts.join("_");
 
@@ -145,9 +163,9 @@ function QueryResults() {
     return columnKey;
   };
 
-  const renderLanguageCombinationTable = (combinations) => {
+  const renderLanguageCombinationTable = (combinations: any[]) => {
     return (
-      <Table striped bordered size="sm" className="mb-0 fs-s">
+      <Table striped bordered size="sm" className="mb-0 fs-custom-7">
         <thead>
           <tr>
             {Object.keys(fieldMapping.LanguageCombination).map((field, index) => (
@@ -168,12 +186,12 @@ function QueryResults() {
     );
   };
 
-  const handleQueryChange = (e) => {
+  const handleQueryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedQueryId(e.target.value);
   };
 
-  const formatQuery = (query) => {
-    if (!query) return '';
+  const formatQuery = (query: any[]): JSX.Element[] => {
+    if (!query) return [];
     return query.map((q, index) => (
       <div key={index}>
         <strong>{q.model}.{q.field}</strong> {q.operator} "{q.value}" {q.logical ? `(${q.logical})` : ''}
@@ -193,25 +211,26 @@ function QueryResults() {
     <Container className="mt-4">
       <Card>
         <Card.Header as="h2" className="text-center">
-          Resultados de la consulta: {query}
+          Consulta "{selectedQuery ? selectedQuery.name : `#${query}`}"
         </Card.Header>
         <Card.Body>
           <Form.Group className="mb-4">
             <Form.Label>Consultas:</Form.Label>
-            <Form.Select value={selectedQueryId} onChange={handleQueryChange}>
+            <Form.Select value={selectedQueryId || ''} onChange={handleQueryChange}>
               <option value="">Selecciona una consulta</option>
-              {queries.map((query) => (
-                <option key={query.id} value={query.id}>
-                  {query.name} ({new Date(query.created_at).toLocaleDateString()})
-                </option>
+              {queries.length > 0 &&
+                queries.map((query) => (
+                  <option key={query.id} value={query.id}>
+                    {query.name} ({new Date(query.created_at).toLocaleDateString()})
+                  </option>
               ))}
             </Form.Select>
           </Form.Group>
 
           {selectedQuery && (
             <div className="mb-4">              
-              <div className="border rounded bg-body-secondary p-3 fs-s">
-                <h5>Consulta seleccionada:</h5>
+              <div className="border rounded bg-body-secondary p-3 fs-custom-7">
+                <h5>SQL:</h5>
                 {formatQuery(selectedQuery.query)}
               </div>
             </div>
@@ -248,17 +267,20 @@ function QueryResults() {
             <Alert variant="info">No se han encontrado resultados.</Alert>
           )}
         </Card.Body>
-        <Card.Footer className="text-center">
-          <Button variant="success" href="/list_queries" size="lg" className="me-3">
-            <FontAwesomeIcon icon={faList} /> Listar consultas
-          </Button>
-          <Button variant="primary" href="/query_form" size="lg">
-            <FontAwesomeIcon icon={faPlusCircle} /> Crear una consulta
-          </Button>
+        <Card.Footer className="d-flex flex-column flex-md-row gap-2 justify-content-center">
+       
+          <LinkButton to="/list_queries" icon={faList} className='w-100 mb-2 mb-md-0' variant="success" size="lg">
+            Listar consultas
+          </LinkButton>
+
+          <LinkButton to="/query_form" icon={faPlusCircle} className='w-100' variant="primary" size="lg">
+            Crear una consulta
+          </LinkButton>
+
         </Card.Footer>
       </Card>
     </Container>
   );
-}
+};
 
 export default QueryResults;

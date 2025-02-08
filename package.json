@@ -3,6 +3,9 @@
     "concurrently": "^9.1.2"
   },
   "scripts": {
-    "start": "concurrently \"cd backend && python3 manage.py runserver\" \"cd frontend && npm start\""
+    "start": "concurrently \"cd backend && python3 manage.py runserver\" \"cd frontend && npm start\"",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"    
   }
 }

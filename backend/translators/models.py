@@ -3,6 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from datetime import date
+from django.utils import timezone
 import os
 import mimetypes
 from .consts import LANGUAGES, GENDER, COUNTRIES, PROVINCES, LEVEL_EDUCATION, EMPLOYMENT_STATUS, WORK_EXPERIENCE
@@ -35,7 +36,7 @@ class Translator(AbstractBaseUser, PermissionsMixin):
     gender = models.CharField(max_length=9, choices=GENDER, verbose_name='Género', default='Otros')    
     mobile_phone = models.CharField(max_length=18, blank=True, verbose_name='Nº Tlf Móvil')
     birth_date = models.DateField(null=True, blank=True, default=date(2000, 1, 1), verbose_name='Fecha de Nacimiento')
-    registration_date = models.DateTimeField(null=True, blank=True, default=date(2000, 1, 1), verbose_name='Fecha de registro')
+    registration_date = models.DateTimeField(null=True, blank=True, default=timezone.now, verbose_name='Fecha de registro')
     last_access = models.DateTimeField(null=True, blank=True, default=date(2000, 1, 1), verbose_name='Último acceso')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -44,6 +45,9 @@ class Translator(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
 
     def __str__(self):
         return self.email

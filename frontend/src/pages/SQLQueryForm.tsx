@@ -1,21 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { getFields, saveQuery } from '../services/api';
+import { getFields, saveQuery } from '../services/api.ts';
 import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle, faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom'; // Para redirigir
+import LinkButton from '../components/ui/LinkButton.tsx';
 
-const exclude_fields = {
+// Definición de tipos
+interface Field {
+  name: string;
+  model: string;
+  type: string;
+  verbose_name?: string;
+  choices?: [string, string][];
+}
+
+interface Condition {
+  model: string;
+  field: string;
+  operator: string;
+  value: string;
+  logical: string;
+  fieldType: string;
+  choices: [string, string][] | null;
+}
+
+const exclude_fields: Record<string, string[]> = {
   'Translator': ['password', 'is_superuser', 'is_active', 'is_staff', 'groups', 'user_permissions'],
   'ProfessionalProfile': ['translator'],
   'LanguageCombination': [],
 };
 
-function SQLQueryForm() {
-  const [fields, setFields] = useState([]);
-  const [conditions, setConditions] = useState([]);
-  const [queryName, setQueryName] = useState('');
-  const [error, setError] = useState('');
+const SQLQueryForm: React.FC = () => {
+  const [fields, setFields] = useState<Field[]>([]);
+  const [conditions, setConditions] = useState<Condition[]>([]);
+  const [queryName, setQueryName] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const navigate = useNavigate(); // Hook de React Router para redirección
 
   useEffect(() => {
@@ -24,7 +44,7 @@ function SQLQueryForm() {
         const data = await getFields();
 
         // Filtra los campos excluidos
-        const filteredFields = data.fields.filter((field) => {
+        const filteredFields = data.fields.filter((field: Field) => {
           const excludedFieldsForModel = exclude_fields[field.model] || [];
           return !excludedFieldsForModel.includes(field.name);
         });
@@ -53,29 +73,37 @@ function SQLQueryForm() {
     ]);
   };
 
-  const removeCondition = (index) => {
+  const removeCondition = (index: number) => {
     const updatedConditions = conditions.filter((_, i) => i !== index);
     setConditions(updatedConditions);
   };
 
-  const handleFieldChange = (index, value) => {
+  const handleFieldChange = (index: number, value: string) => {
     const fieldData = fields.find((f) => f.name === value);
     const updatedConditions = [...conditions];
     updatedConditions[index].model = fieldData ? fieldData.model : '';
     updatedConditions[index].field = value;
     updatedConditions[index].fieldType = fieldData ? fieldData.type : '';
-    updatedConditions[index].choices = fieldData ? fieldData.choices : null;
+    updatedConditions[index].choices = fieldData?.choices || null;
 
     setConditions(updatedConditions);
   };
 
-  const handleConditionChange = (index, key, value) => {
+  const handleConditionChange = (index: number, key: keyof Condition, value: string | [string, string][] | null) => {
     const updatedConditions = [...conditions];
-    updatedConditions[index][key] = value;
+
+    if (key === 'choices') {
+      // Si la clave es 'choices', el valor debe ser [string, string][] o null
+      updatedConditions[index][key] = value as [string, string][] | null;
+    } else {
+      // Para otras claves, el valor debe ser string
+      updatedConditions[index][key] = value as string;
+    }
+
     setConditions(updatedConditions);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!queryName.trim()) {
@@ -112,8 +140,8 @@ function SQLQueryForm() {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="p-4 bg-light rounded-3">
-      <h2 className="mb-4">Crear nueva consulta</h2>
+    <Form onSubmit={handleSubmit} className="p-3 p-md-4 bg-light rounded-3">
+      <h2 className="mb-4 text-center">Crear nueva consulta</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       <Form.Group className="mb-3">
         <Form.Label>Nombre de la consulta:</Form.Label>
@@ -128,7 +156,7 @@ function SQLQueryForm() {
       {conditions.map((condition, index) => (
         <Row key={index} className="mb-3 align-items-end">
           {index > 0 && (
-            <Col md={2}>
+            <Col xs={12} md={2} className="mb-2 mb-md-0">
               <Form.Select
                 value={condition.logical}
                 onChange={(e) => handleConditionChange(index, 'logical', e.target.value)}
@@ -138,7 +166,7 @@ function SQLQueryForm() {
               </Form.Select>
             </Col>
           )}
-          <Col md={index > 0 ? 3 : 4}>
+          <Col xs={12} md={index > 0 ? 3 : 4} className="mb-2 mb-md-0">
             <Form.Select
               value={condition.field}
               onChange={(e) => handleFieldChange(index, e.target.value)}
@@ -152,7 +180,7 @@ function SQLQueryForm() {
               ))}
             </Form.Select>
           </Col>
-          <Col md={2}>
+          <Col xs={12} md={2} className="mb-2 mb-md-0">
             <Form.Select
               value={condition.operator}
               onChange={(e) => handleConditionChange(index, 'operator', e.target.value)}
@@ -160,7 +188,7 @@ function SQLQueryForm() {
             >
               <option value="=">igual a</option>
               <option value="!=">distinto a</option>
-              {condition.fieldType === 'CharField' || condition.fieldType === 'TextField' ? (
+              {condition.fieldType === 'CharField' || condition.fieldType === 'TextField' || condition.fieldType === 'EmailField' ? (
                 <>
                   <option value="LIKE">contiene</option>
                   <option value="NOT LIKE">no contiene</option>
@@ -171,11 +199,13 @@ function SQLQueryForm() {
                   <option value="<=">menor o igual que</option>
                   <option value=">">mayor que</option>
                   <option value=">=">mayor o igual que</option>
+                  <option value="IN">en</option>
+                  <option value="NOT IN">no en</option>
                 </>
               )}
             </Form.Select>
           </Col>
-          <Col md={3}>
+          <Col xs={12} md={3} className="mb-2 mb-md-0">
             {condition.choices ? (
               <Form.Select
                 value={condition.value}
@@ -196,6 +226,14 @@ function SQLQueryForm() {
                 onChange={(e) => handleConditionChange(index, 'value', e.target.value)}
                 required
               />
+            ) : condition.operator === 'IN' || condition.operator === 'NOT IN' ? (
+              <Form.Control
+                type="text"
+                value={condition.value}
+                onChange={(e) => handleConditionChange(index, 'value', e.target.value)}
+                required
+                placeholder="Valores separados por comas"
+              />
             ) : (
               <Form.Control
                 type="text"
@@ -205,23 +243,26 @@ function SQLQueryForm() {
               />
             )}
           </Col>
-          <Col md={2}>
-            <Button variant="danger" onClick={() => removeCondition(index)}>
+          <Col xs={12} md={2} className="mb-2 mb-md-0">
+            <Button variant="danger" onClick={() => removeCondition(index)} className="w-100">
               <FontAwesomeIcon icon={faTrash} />
             </Button>
           </Col>
         </Row>
       ))}
-      <div className="mt-4">
-        <Button variant="success" onClick={addCondition}>
-          <FontAwesomeIcon icon={faPlusCircle} /> Añadir condición
-        </Button>
-        <Button variant="primary" type="submit" className="ms-2">
-          <FontAwesomeIcon icon={faSave} /> Guardar consulta
-        </Button>
+      <div className="d-flex flex-column flex-md-row gap-2 justify-content-center">
+
+        <LinkButton onClick={addCondition} icon={faPlusCircle} className='w-100 mb-2 mb-md-0' variant="success" size="lg">
+          Añadir condición
+        </LinkButton>
+
+        <LinkButton onClick={addCondition} icon={faSave} className='w-100' variant="primary" size="lg">
+          Guardar consulta
+        </LinkButton>
+
       </div>
     </Form>
   );
-}
+};
 
 export default SQLQueryForm;
