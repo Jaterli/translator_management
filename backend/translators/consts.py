@@ -84,7 +84,7 @@ PROVINCES = [
     ('Zamora', 'Zamora'), ('Zaragoza', 'Zaragoza')
 ]
 
-GENDER = [('M', 'Hombre'), ('F', 'Mujer'), ('O', 'Otros')]
+GENDER = [('H', 'Hombre'), ('M', 'Mujer'), ('O', 'Otros')]
 
 LANGUAGES = [
     ('Alemán', 'Alemán'),

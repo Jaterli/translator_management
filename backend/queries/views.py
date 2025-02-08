@@ -5,7 +5,15 @@ from queries.models import SavedQuery
 from translators.models import Translator, ProfessionalProfile, LanguageCombination
 from django.db.models import Q
 from django.apps import apps
+from django.conf import settings
 import json
+
+# Importaciones para el sistema de autenticación
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 # Devuelve todos los campos disponibles de los modelos registrados en la app translators
@@ -57,12 +65,6 @@ def delete_query(request, query_id):
         return JsonResponse({"message": "Query deleted successfully."})
     return JsonResponse({"error": "Invalid request method."}, status=400)
 
-
-from django.http import JsonResponse
-from django.db.models import Q
-from django.conf import settings
-from .models import SavedQuery
-import json
 
 # Función para convertir una instancia de modelo a diccionario
 def model_to_dict(instance, exclude_fields=None):
@@ -133,6 +135,14 @@ def execute_query(request, query_id):
                 "!=": "",
                 "LIKE": "__icontains",
                 "NOT LIKE": "__icontains",
+                ">": "__gt",
+                "<": "__lt",
+                ">=": "__gte",
+                "<=": "__lte",
+                "IN": "__in",
+                "NOT IN": "__in",
+                "IS NULL": "__isnull",
+                "IS NOT NULL": "__isnull",
             }
 
             # Generar filtro dinámico
@@ -142,6 +152,12 @@ def execute_query(request, query_id):
                     condition_q = ~Q(**{field_lookup: value})
                 elif operator == "!=":
                     condition_q = ~Q(**{field: value})
+                elif operator == "NOT IN":
+                    condition_q = ~Q(**{field_lookup: value})
+                elif operator == "IS NULL":
+                    condition_q = Q(**{field_lookup: True})
+                elif operator == "IS NOT NULL":
+                    condition_q = Q(**{field_lookup: False})
                 else:
                     condition_q = Q(**{field_lookup: value})
 
@@ -185,3 +201,28 @@ def execute_query(request, query_id):
         return JsonResponse({"error": "Consulta no encontrada"}, status=404)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+
+
+class StaffLoginView(APIView):
+    """
+    Autentiqua a los usuarios is_staff y devuelva un token JWT.
+    """
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = authenticate(username=username, password=password)
+
+        if user and user.is_staff:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': {
+                    'name': user.get_full_name() or user.username,
+                    'email': user.email,
+                },
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Invalid credentials or not a staff user'}, status=status.HTTP_401_UNAUTHORIZED)

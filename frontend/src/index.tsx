@@ -1,12 +1,10 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import SQLQueryForm from './components/SQLQueryForm';
-import QueryList from './components/QueryList';
-import QueryResults from './components/QueryResults';
+import SQLQueryForm from './pages/SQLQueryForm';
+import QueryList from './pages/QueryList';
+import QueryResults from './pages/QueryResults';
 import Navbar from './components/Navbar';
-import WelcomeSection from './components/WelcomeSection';
+import WelcomeSection from './pages/Dashboard';
 import { Container } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (

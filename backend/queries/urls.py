@@ -7,4 +7,5 @@ urlpatterns = [
     path('api/list_queries/', views.list_queries, name='list-queries'),
     path('api/delete_query/<int:query_id>', views.delete_query, name='delete-query'),
     path('api/execute_query/<int:query_id>/', views.execute_query, name='execute-query'),
+    path('api/auth/login/', views.StaffLoginView.as_view(), name='staff-login'),
 ]

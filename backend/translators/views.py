@@ -15,6 +15,8 @@ from .models import Translator, LanguageCombination, ProfessionalProfile, Files
 from .forms import TranslatorAccountDeleteForm, TranslatorRegistrationForm, TranslatorLoginForm, TranslatorForm, LanguageCombinationForm, ProfessionalProfileForm, FilesForm
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
+
 
 
 @receiver(post_save, sender=Translator)
@@ -49,6 +51,19 @@ class TranslatorLoginView(LoginView):
     def get_success_url(self):
         messages.success(self.request, f"Bienvenid@, {self.request.user.email}!")
         return reverse_lazy('index')
+
+    def form_valid(self, form):
+        """
+        Actualiza el campo last_access del usuario después de un login exitoso.
+        """
+        response = super().form_valid(form)  # Llama al método form_valid de la clase padre
+        user = self.request.user  # Obtiene el usuario autenticado
+
+        # Actualiza el campo last_access con la hora actual
+        user.last_access = timezone.now()
+        user.save()
+
+        return response
 
     def form_invalid(self, form):
         messages.error(self.request, "Credenciales no válidos. Vuelve a intentarlo.")
