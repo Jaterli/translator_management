@@ -2,9 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { executeQuery, getQueries } from '../services/api';
 import { Table, Card, Alert, Container, Form } from 'react-bootstrap';
-import { faList, faPlusCircle, faEye } from '@fortawesome/free-solid-svg-icons'; // Importa el icono faEye
+import { faList, faPlusCircle, faEye, faFileExcel } from '@fortawesome/free-solid-svg-icons'; // Importa el icono faEye
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importa FontAwesomeIcon para usar el icono
 import LinkButton from '../components/ui/LinkButton';
+import * as XLSX from 'xlsx';
 
 // Definición de tipos
 interface Query {
@@ -23,6 +24,7 @@ interface FieldMapping {
     [key: string]: string;
   };
 }
+
 
 const QueryResults: React.FC = () => {
   const { queryId: initialQueryId } = useParams<{ queryId: string }>();
@@ -56,6 +58,40 @@ const QueryResults: React.FC = () => {
       text_types: "Texto",
     },
   }), []);
+
+
+  const exportToExcel = () => {
+    if (results.length === 0) {
+      alert('No hay datos para exportar.');
+      return;
+    }
+  
+    // Formatear los datos
+    const formattedData = results.map(row => {
+      const newRow: { [key: string]: any } = {};
+      columns.forEach(col => {
+        if (col === "LanguageCombination") {
+          newRow[col] = row[col]?.map((combination: any) => 
+            Object.values(combination).join(", ")
+          ).join(" | ") || 'N/A';
+        } else {
+          newRow[getAlternateColumnName(col)] = row[col] || 'N/A';
+        }
+      });
+      return newRow;
+    });
+  
+    // Crear una hoja de trabajo (worksheet)
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+  
+    // Crear un libro de trabajo (workbook)
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
+  
+    // Guardar el archivo
+    XLSX.writeFile(workbook, `Consulta_${selectedQuery?.name || selectedQueryId}.xlsx`);
+  };
+  
 
   // Obtener y ordenar las consultas por fecha (created_at) de manera descendente
   useEffect(() => {
@@ -141,7 +177,7 @@ const QueryResults: React.FC = () => {
         setError(null);
       } catch (err:any) {
         console.error("Error al procesar los resultados:", err);
-        setError(err.response?.data?.error || 'Error al obtener resultados.');
+        setError("Error: "+err.response?.data?.error || err.message || 'Error al obtener resultados.');
       }
     }
     fetchResults();
@@ -277,9 +313,12 @@ const QueryResults: React.FC = () => {
           <LinkButton to="/list_queries" icon={faList} className='w-100 mb-2 mb-md-0' variant="success" size="lg">
             Listar consultas
           </LinkButton>
-          <LinkButton to="/query_form" icon={faPlusCircle} className='w-100' variant="primary" size="lg">
+          <LinkButton to="/query_form" icon={faPlusCircle} className='w-100 mb-2 mb-md-0' variant="primary" size="lg">
             Crear una consulta
           </LinkButton>
+          <LinkButton  onClick={() => exportToExcel()} icon={faFileExcel} variant="warning" size="lg">
+            Exportar a Excel
+          </LinkButton>          
         </Card.Footer>
       </Card>
     </Container>

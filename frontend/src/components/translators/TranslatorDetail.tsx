@@ -87,7 +87,7 @@ const TranslatorProfile: React.FC<TranslatorProfileProps> = ({ translator }) => 
             </div>
         </div>
         <div className="text-center">
-            <LinkButton to="query_results" icon={faList} variant="info" size="lg">
+            <LinkButton to="/query_results" icon={faList} variant="info" size="lg">
                 Volver a resultados
             </LinkButton>
         </div></>
