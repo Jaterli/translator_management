@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getFields, saveQuery } from '../services/api.ts';
+import { getModelFields, saveQuery } from '../services/api.ts';
 import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle, faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -41,7 +41,7 @@ const SQLQueryForm: React.FC = () => {
   useEffect(() => {
     async function fetchFields() {
       try {
-        const data = await getFields();
+        const data = await getModelFields();
 
         // Filtra los campos excluidos
         const filteredFields = data.fields.filter((field: Field) => {
@@ -256,7 +256,7 @@ const SQLQueryForm: React.FC = () => {
           Añadir condición
         </LinkButton>
 
-        <LinkButton onClick={addCondition} icon={faSave} className='w-100' variant="primary" size="lg">
+        <LinkButton onClick={handleSubmit} icon={faSave} className='w-100' variant="primary" size="lg">
           Guardar consulta
         </LinkButton>
 

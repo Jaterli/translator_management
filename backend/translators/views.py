@@ -11,12 +11,16 @@ from django.views.generic.list import ListView
 from django.contrib.auth import update_session_auth_hash
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.views.generic.detail import DetailView
+
 from .models import Translator, LanguageCombination, ProfessionalProfile, Files
 from .forms import TranslatorAccountDeleteForm, TranslatorRegistrationForm, TranslatorLoginForm, TranslatorForm, LanguageCombinationForm, ProfessionalProfileForm, FilesForm
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from rest_framework import generics
+from .permissions import IsStaffPermission
+from .serializers import TranslatorSerializer
 
 
 @receiver(post_save, sender=Translator)
@@ -40,7 +44,6 @@ class TranslatorRegisterView(View):
         else:
             messages.error(request, "Se ha producido un error durante el registro.")
         return render(request, 'translators/register.html', {'form': form})
-
 
 
 class TranslatorLoginView(LoginView):
@@ -70,7 +73,6 @@ class TranslatorLoginView(LoginView):
         return super().form_invalid(form)
 
 
-
 class TranslatorUpdateView(LoginRequiredMixin, UpdateView):
     model = Translator
     form_class = TranslatorForm
@@ -79,7 +81,6 @@ class TranslatorUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self):
         return self.request.user
-
 
 
 class TranslatorDetailView(LoginRequiredMixin, DetailView):
@@ -96,7 +97,6 @@ class TranslatorDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-
 class ProfessionalProfileDetailView(LoginRequiredMixin, DetailView):
     """
     Clase de vista para mostrar los datos del perfil profesional de un traductor.
@@ -110,7 +110,6 @@ class ProfessionalProfileDetailView(LoginRequiredMixin, DetailView):
         Obtiene el perfil profesional del usuario autenticado.
         """
         return self.request.user.professional_profile
-
 
 
 class ProfessionalProfileUpdateView(LoginRequiredMixin, UpdateView):
@@ -147,7 +146,6 @@ class ProfessionalProfileUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_invalid(form)    
     
 
-
 class FilesView(LoginRequiredMixin, UpdateView):
     model = Files
     form_class = FilesForm
@@ -172,7 +170,6 @@ class FilesView(LoginRequiredMixin, UpdateView):
         return super().form_invalid(form)
 
 
-
 def delete_cv(request):
     """
     Elimina el currículum vitae del traductor.
@@ -185,7 +182,6 @@ def delete_cv(request):
     else:
         messages.error(request, "No se encontró un currículum para eliminar.")
     return redirect('files')  # Redirige a la vista de detalle del traductor
-
 
 
 def delete_voice_note(request):
@@ -202,7 +198,6 @@ def delete_voice_note(request):
     return redirect('files')  # Redirige a la vista de detalle del traductor
 
 
-
 class CombinationCreateView(CreateView):
     model = LanguageCombination
     form_class = LanguageCombinationForm
@@ -212,7 +207,6 @@ class CombinationCreateView(CreateView):
     def form_valid(self, form):
         form.instance.translator = self.request.user
         return super().form_valid(form)
-
 
 
 class CombinationUpdateView(UserPassesTestMixin, UpdateView):
@@ -230,12 +224,10 @@ class CombinationUpdateView(UserPassesTestMixin, UpdateView):
         return HttpResponseForbidden("You do not have permission to edit this combination.")
 
 
-
 class CombinationDeleteView(LoginRequiredMixin, DeleteView):
     model = LanguageCombination
     template_name = 'translators/combination_confirm_delete.html'
     success_url = reverse_lazy('language-combinations-list')
-
 
 
 class LanguageCombinationListView(LoginRequiredMixin, ListView):
@@ -247,7 +239,6 @@ class LanguageCombinationListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return LanguageCombination.objects.filter(translator=self.request.user)
     
-
 
 class TranslatorAccountDeleteView(LoginRequiredMixin, FormView):
     template_name = "translators/account-delete-confirmation.html"
@@ -269,11 +260,9 @@ class TranslatorAccountDeleteView(LoginRequiredMixin, FormView):
         return super().form_invalid(form)
 
 
-
 @login_required
 def index(request):
     return render(request, 'translators/index.html')
-
 
 
 @login_required
@@ -288,7 +277,6 @@ def language_combinations(request):
     return render(request, 'translators/language_combinations.html', {'language-combinations': combinations})
 
 
-
 @login_required
 def change_password(request):
     if request.method == 'POST':
@@ -300,3 +288,13 @@ def change_password(request):
     else:
         form = PasswordChangeForm(user=request.user)
     return render(request, 'translators/change_password.html', {'form': form})
+
+
+class TranslatorDetailViewForAdmin(generics.RetrieveAPIView):
+    """
+    Para el frontend de React.
+    """
+    queryset = Translator.objects.all()
+    serializer_class = TranslatorSerializer
+    permission_classes = [IsStaffPermission]  # Solo usuarios autenticados y con is_staff=True
+    lookup_field = 'id'

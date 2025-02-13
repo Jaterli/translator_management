@@ -19,15 +19,15 @@ const Login = () => {
 
     try {
       // Guarda el token y la información del usuario en el contexto de autenticación
-      const { access, user } = await login(username, password);
+      const { access_token, refresh_token = '', user } = await login(username, password);
 
       // Guarda el token en el contexto de autenticación
-      authLogin(access, user);
+      authLogin(access_token, refresh_token, user);
 
       // Redirige al dashboard
       navigate('/');
     } catch (error) {
-      setError('Credenciales no válidas o usuario no staff');
+      setError('error #1: Credenciales inválidas o usuario no autorizado');
       console.error('Login failed', error);
     }
   };

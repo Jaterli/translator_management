@@ -1,7 +1,4 @@
-import axios from 'axios';
 import instance from './axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Definición de tipos e interfaces
 interface Field {
@@ -27,8 +24,8 @@ interface ApiResponse<T> {
 
 // Tipo para la respuesta de autenticación
 interface AuthResponse {
-  access: string; // Token JWT
-  refresh?: string; // Token de refresco (opcional)
+  access_token: string; // Token JWT
+  refresh_token?: string; // Token de refresco (opcional)
   user: { // Información de usuario
     name: string;
     email: string;
@@ -36,45 +33,64 @@ interface AuthResponse {
 }
 
 // Obtener campos
-export async function getFields(): Promise<{ fields: Field[] }> {
-  console.log(`${API_BASE_URL}get_fields/`);
-  const response = await fetch(`${API_BASE_URL}get_fields/`);
-  return response.json();
+export async function getModelFields(): Promise<{ fields: Field[] }> {
+  const response = await instance.get('/get_fields/');
+  return response.data;
 }
+
 
 // Guardar consulta
 export async function saveQuery(data: { name: string; query: any }): Promise<ApiResponse<Query>> {
-  const response = await fetch(`${API_BASE_URL}save_query/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  return response.json();
+  const response = await instance.post('/save_query/', data);
+  return response.data;
 }
 
 // Obtener listado de consultas
 export async function getQueries(): Promise<ApiResponse<Query[]>> {
-  const response = await instance.get(`${API_BASE_URL}list_queries/`);
+  const response = await instance.get('/list_queries/');
   return response.data;
 }
 
 // Eliminar consulta
 export async function deleteQuery(queryId: number): Promise<ApiResponse<{ id: number }>> {
-  const response = await axios.delete(`${API_BASE_URL}delete_query/${queryId}`);
+  const response = await instance.delete(`/delete_query/${queryId}/`);
   return response.data;
 }
 
 // Ejecutar consulta
 export async function executeQuery(queryId: string): Promise<ApiResponse<any>> {
-  const response = await axios.get(`${API_BASE_URL}execute_query/${queryId}/`);
+  const response = await instance.get(`/execute_query/${queryId}/`);
   return response.data;
 }
 
 // Autenticación (login)
 export async function login(username: string, password: string): Promise<AuthResponse> {
-  const response = await axios.post<AuthResponse>(`${API_BASE_URL}auth/login/`, {
-    username,
-    password,
+  const response = await instance.post<AuthResponse>('/auth/login/', { username, password });
+  return response.data;
+}
+
+// Vista detalle de traductor
+// export async function getTranslatorDetail(id: string) {
+//   const response = await instance.get(`/translators/api/translator_detail/${id}/`);
+//   return response.data;
+// }
+
+
+import axios from 'axios';
+
+// Vista detalle de traductor
+export async function getTranslatorDetail(id: string) {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+      throw new Error('No estás autenticado. Por favor, inicia sesión.');
+  }
+
+  const response = await axios.get(`http://localhost:8000/translators/api/translator_detail/${id}/`, {
+      headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+      },
   });
+
   return response.data;
 }

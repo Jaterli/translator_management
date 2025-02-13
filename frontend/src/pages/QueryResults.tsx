@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { executeQuery, getQueries } from '../services/api';
 import { Table, Card, Alert, Container, Form } from 'react-bootstrap';
-import { faList, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faList, faPlusCircle, faEye } from '@fortawesome/free-solid-svg-icons'; // Importa el icono faEye
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importa FontAwesomeIcon para usar el icono
 import LinkButton from '../components/ui/LinkButton';
 
 // Definición de tipos
@@ -36,6 +37,7 @@ const QueryResults: React.FC = () => {
   // Memoizamos fieldMapping para evitar recrearlo en cada renderizado
   const fieldMapping: FieldMapping = useMemo(() => ({
     Translator: {
+      id: "id",
       first_name: "Nombre",
       email: "Email",
       country: "País",
@@ -226,7 +228,7 @@ const QueryResults: React.FC = () => {
               ))}
             </Form.Select>
           </Form.Group>
-
+  
           {selectedQuery && (
             <div className="mb-4">              
               <div className="border rounded bg-body-secondary p-3 fs-custom-7">
@@ -235,7 +237,7 @@ const QueryResults: React.FC = () => {
               </div>
             </div>
           )}
-
+  
           {results.length > 0 ? (
             <Table striped bordered hover responsive>
               <thead>
@@ -254,6 +256,10 @@ const QueryResults: React.FC = () => {
                       <td key={colIndex}>
                         {col === "LanguageCombination" ? (
                           renderLanguageCombinationTable(row[col])
+                        ) : col === "Translator_id" ? ( // Verifica si la columna es "Translator_id"
+                          <Link to={`/translator_detail/${row[col]}/`}>
+                            <FontAwesomeIcon icon={faEye} /> {/* Usa el icono faEye */}
+                          </Link>
                         ) : (
                           row[col] || 'N/A'
                         )}
@@ -268,15 +274,12 @@ const QueryResults: React.FC = () => {
           )}
         </Card.Body>
         <Card.Footer className="d-flex flex-column flex-md-row gap-2 justify-content-center">
-       
           <LinkButton to="/list_queries" icon={faList} className='w-100 mb-2 mb-md-0' variant="success" size="lg">
             Listar consultas
           </LinkButton>
-
           <LinkButton to="/query_form" icon={faPlusCircle} className='w-100' variant="primary" size="lg">
             Crear una consulta
           </LinkButton>
-
         </Card.Footer>
       </Card>
     </Container>
