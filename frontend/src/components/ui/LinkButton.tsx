@@ -12,7 +12,7 @@ type LinkButtonProps = {
   variant?: string; // Variante de estilo del botón (ej: "primary", "success")
   size?: 'lg' | 'sm'; // Tamaño opcional del botón
   className?: string; // Clases CSS adicionales
-  onClick?: () => void; // Evento onClick opcional
+  onClick?: (e: React.MouseEvent) => void; // Acepta un evento como parámetro
   type?: 'button' | 'submit' | 'reset';
 };
 

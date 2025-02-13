@@ -1,7 +1,4 @@
-import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusCircle, faList, faDatabase } from '@fortawesome/free-solid-svg-icons';
+import { faPlusCircle, faList } from '@fortawesome/free-solid-svg-icons';
 import logo from '/images/logo-gc.png'; // Importa la imagen
 import LinkButton from '../components/ui/LinkButton';
 

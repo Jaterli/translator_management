@@ -1,70 +1,77 @@
-from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from queries.models import SavedQuery
 from translators.models import Translator, ProfessionalProfile, LanguageCombination
 from django.db.models import Q
-from django.apps import apps
-from django.conf import settings
-import json
+from django.db import models
+from django.contrib.auth import authenticate
 
-# Importaciones para el sistema de autenticación
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAdminUser
 
 
-# Devuelve todos los campos disponibles de los modelos registrados en la app translators
-def get_model_fields(request):
-    # app_models = apps.get_app_config('translators').get_models()
-    app_models = [Translator, ProfessionalProfile, LanguageCombination]
-    fields = []
+class GetModelFieldsView(APIView):
+    permission_classes = [IsAdminUser]  # Solo administradores pueden acceder
 
-    for model in app_models:
-        model_name = model.__name__
-        
-        for field in model._meta.get_fields(include_hidden=False):
-            if not field.is_relation:  # Excluir relaciones m2m, o2m
-                field_info = {
-                    "model": model_name,
-                    "name": field.name,
-                    "type": type(field).__name__,
-                    "verbose_name": '-- '+model_name+' --' if getattr(field, 'verbose_name', '') == 'ID' else getattr(field, 'verbose_name', ''),
-                    "choices": getattr(field, 'choices', None),
-                }
-                fields.append(field_info)
-    
-    return JsonResponse({"fields": fields})
+    def get(self, request):
+        # Modelos registrados en la app "translators"
+        app_models = [Translator, ProfessionalProfile, LanguageCombination]
+        fields = []
+
+        for model in app_models:
+            model_name = model.__name__
+
+            for field in model._meta.get_fields(include_hidden=False):
+                if not field.is_relation:  # Excluir relaciones m2m, o2m
+                    field_info = {
+                        "model": model_name,
+                        "name": field.name,
+                        "type": type(field).__name__,
+                        "verbose_name": '-- ' + model_name + ' --' if getattr(field, 'verbose_name', '') == 'ID' else getattr(field, 'verbose_name', ''),
+                        "choices": getattr(field, 'choices', None),
+                    }
+                    fields.append(field_info)
+
+        return Response({"fields": fields}, status=status.HTTP_200_OK)
 
 
-# Guardar la consulta SQL generada
-@csrf_exempt
-def save_query(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
+class SaveQueryView(APIView):
+    # Guardar la consulta SQL generada
+    permission_classes = [IsAdminUser]  # Solo administradores pueden guardar consultas
+
+    def post(self, request):
+        data = request.data  # DRF maneja automáticamente JSON
         name = data.get("name")
         query = data.get("query")  # JSON con los filtros
 
+        if not name or not query:
+            return Response({"error": "El nombre y la consulta son obligatorios."}, status=status.HTTP_400_BAD_REQUEST)
+
         # Guardar la consulta
         saved_query = SavedQuery.objects.create(name=name, query=query)
-        return JsonResponse({"message": "Consulta guardada", "id": saved_query.id})        
+        return Response({"message": "Consulta guardada", "id": saved_query.id}, status=status.HTTP_201_CREATED)
 
 
-def list_queries(request):
-    queries = SavedQuery.objects.values("id", "name", "created_at", "query")
-    return JsonResponse({"queries": list(queries)})
+class ListQueriesView(APIView):
+    permission_classes = [IsAdminUser]  # Solo permite usuarios con is_staff=True
+
+    def get(self, request):
+        queries = SavedQuery.objects.values("id", "name", "created_at", "query")
+        return Response({"queries": list(queries)})
 
 
-@csrf_exempt
-def delete_query(request, query_id):
-    if request.method == "DELETE":
+class DeleteQueryView(APIView):
+    # ✅ Eliminar consulta (solo staff)
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, query_id):
         query = get_object_or_404(SavedQuery, id=query_id)
         query.delete()
-        return JsonResponse({"message": "Query deleted successfully."})
-    return JsonResponse({"error": "Invalid request method."}, status=400)
-
+        return Response({"message": "Consulta eliminada correctamente."}, status=status.HTTP_204_NO_CONTENT)
+    
 
 # Función para convertir una instancia de modelo a diccionario
 def model_to_dict(instance, exclude_fields=None):
@@ -78,58 +85,44 @@ def model_to_dict(instance, exclude_fields=None):
     excluded = exclude_fields.get(model_name, [])
 
     data = {}
-    for field in instance._meta.fields:
+    for field in instance._meta.get_fields():
         if field.name in excluded:
-            continue  # Saltar campos excluidos
+            continue  # Omitir campos excluidos
 
-        value = getattr(instance, field.name)
+        value = getattr(instance, field.name, None)
 
-        if isinstance(value, (int, float, str, bool)):  # Tipos simples
+        if isinstance(field, (models.ForeignKey, models.OneToOneField)) and value is not None:
+            data[field.name] = model_to_dict(value, exclude_fields)
+        elif isinstance(field, models.ManyToManyField):
+            data[field.name] = [model_to_dict(obj, exclude_fields) for obj in value.all()]
+        elif isinstance(value, (int, float, str, bool, type(None))):  # Tipos simples + None
             data[field.name] = value
-        elif value is not None and hasattr(value, 'all'):  # Si el campo es una relación de muchos a muchos
-            data[field.name] = [model_to_dict(obj) for obj in value.all()]
-        elif value is not None and hasattr(value, '_meta'):  # Si es una relación de uno a uno
-            data[field.name] = model_to_dict(value)
-        else:
-            data[field.name] = value
+
     return data
 
-def execute_query(request, query_id):
-    try:
-        # Obtiene la consulta guardada
-        saved_query = SavedQuery.objects.get(id=query_id)
-        query_data = saved_query.query  # Asume que query es un JSON válido
-        print("query_data: ", query_data, "\n")
 
-        # Relación entre modelos y sus nombres
-        related_models = {
-            "ProfessionalProfile": "professional_profile",
-            "LanguageCombination": "language_combination",
-        }
+class ExecuteQueryView(APIView):
+    permission_classes = [IsAdminUser]  # Solo administradores pueden acceder
 
-        # Definir campos a excluir para cada modelo
-        exclude_fields = {
-            'translator': ['password', 'is_superuser', 'is_active', 'is_staff', 'groups', 'user_permissions'],
-            'professional_profile': ['translator'],
-            'language_combination': ['translator'],
-        }
+    def get(self, request, query_id):
+        try:
+            saved_query = get_object_or_404(SavedQuery, id=query_id)
+            query_data = saved_query.query  # Se asume que es un JSON válido
+            print("query_data: ", query_data, "\n")
 
-        # Crear lista temporal para almacenar condiciones
-        query_filter = Q()  # Filtro final
+            related_models = {
+                "ProfessionalProfile": "professional_profile",
+                "LanguageCombination": "language_combination",
+            }
 
-        # Recorrer las condiciones guardadas
-        for condition in query_data:
-            model = condition.get("model")
-            field = condition.get("field")
-            operator = condition.get("operator")
-            value = condition.get("value")
-            logical = condition.get("logical", "AND")  # Valor predeterminado si falta
+            exclude_fields = {
+                'translator': ['password', 'is_superuser', 'is_active', 'is_staff', 'groups', 'user_permissions'],
+                'professional_profile': ['translator'],
+                'language_combination': ['translator'],
+            }
 
-            # Obtener prefijo para campos relacionados
-            prefix = related_models.get(model, "") + "__" if model in related_models else ""
-            field = f"{prefix}{field}"
+            query_filter = Q()
 
-            # Mapeo de operadores a funciones de Django ORM
             operators_map = {
                 "=": "",
                 "!=": "",
@@ -145,63 +138,48 @@ def execute_query(request, query_id):
                 "IS NOT NULL": "__isnull",
             }
 
-            # Generar filtro dinámico
-            if operator in operators_map:
-                field_lookup = f"{field}{operators_map[operator]}"
-                if operator == "NOT LIKE":
-                    condition_q = ~Q(**{field_lookup: value})
-                elif operator == "!=":
-                    condition_q = ~Q(**{field: value})
-                elif operator == "NOT IN":
-                    condition_q = ~Q(**{field_lookup: value})
-                elif operator == "IS NULL":
-                    condition_q = Q(**{field_lookup: True})
-                elif operator == "IS NOT NULL":
-                    condition_q = Q(**{field_lookup: False})
-                else:
-                    condition_q = Q(**{field_lookup: value})
+            for condition in query_data:
+                model = condition.get("model")
+                field = condition.get("field")
+                operator = condition.get("operator")
+                value = condition.get("value")
+                logical = condition.get("logical", "AND")
 
-                # Combinar condiciones
-                if logical == "AND":
-                    query_filter &= condition_q
-                elif logical == "OR":
-                    query_filter |= condition_q
-                else:  # primera condición no tiene operador lógico definido
-                    query_filter = condition_q
+                field_lookup = f"{related_models.get(model, '')}__{field}".strip("_")
+                field_lookup += operators_map.get(operator, "")
 
-        # Aplicar el filtro a los traductores
-        translators = Translator.objects.filter(query_filter).distinct().select_related(
-            'professional_profile'
-        ).prefetch_related('language_combination')
+                condition_q = {
+                    "NOT LIKE": ~Q(**{field_lookup: value}),
+                    "!=": ~Q(**{field: value}),
+                    "NOT IN": ~Q(**{field_lookup: value}),
+                    "IS NULL": Q(**{field_lookup: True}),
+                    "IS NOT NULL": Q(**{field_lookup: False}),
+                }.get(operator, Q(**{field_lookup: value}))
 
-        print("Consulta SQL generada:", translators.query)
+                query_filter = query_filter & condition_q if logical == "AND" else query_filter | condition_q
 
-        # Serializar los datos
-        results = []
-        for translator in translators:
-            translator_data = {
-                "Translator": model_to_dict(translator, exclude_fields=exclude_fields)
-            }
+            translators = Translator.objects.filter(query_filter & ~Q(is_staff=True)).distinct().select_related(
+                'professional_profile'
+            ).prefetch_related('language_combination')
 
-            # Agregar datos de ProfessionalProfile si existe
-            if hasattr(translator, "professional_profile"):
-                profile = translator.professional_profile
-                translator_data["ProfessionalProfile"] = model_to_dict(profile, exclude_fields=exclude_fields)
+            print("Consulta SQL generada:", translators.query)
 
-            # Agregar datos de LanguageCombination si existe
-            translator_data["LanguageCombination"] = [
-                model_to_dict(lc, exclude_fields=exclude_fields) for lc in translator.language_combination.all()
-            ]
+            results = [
+                {
+                    "Translator": model_to_dict(t, exclude_fields),
+                    "ProfessionalProfile": model_to_dict(t.professional_profile, exclude_fields)
+                    if hasattr(t, "professional_profile") else None,
+                    "LanguageCombination": [
+                        model_to_dict(lc, exclude_fields) for lc in t.language_combination.all()
+                    ],
+                }
+                for t in translators
+            ]          
 
-            results.append(translator_data)
+            return Response({"results": results}, status=status.HTTP_200_OK)
 
-        return JsonResponse({"results": results}, safe=False, status=200)
-
-    except SavedQuery.DoesNotExist:
-        return JsonResponse({"error": "Consulta no encontrada"}, status=404)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
-    
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class StaffLoginView(APIView):
@@ -217,12 +195,12 @@ class StaffLoginView(APIView):
         if user and user.is_staff:
             refresh = RefreshToken.for_user(user)
             return Response({
-                'access': str(refresh.access_token),
-                'refresh': str(refresh),
+                'access_token': str(refresh.access_token),
+                'refresh_token': str(refresh),
                 'user': {
                     'name': user.get_full_name() or user.username,
                     'email': user.email,
                 },
             }, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'Invalid credentials or not a staff user'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error #2': 'Credenciales inválidas o usuario no autorizado'}, status=status.HTTP_401_UNAUTHORIZED)

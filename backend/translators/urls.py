@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TranslatorRegisterView, TranslatorLoginView, TranslatorUpdateView, TranslatorDetailView, CombinationCreateView, CombinationUpdateView, CombinationDeleteView, ProfessionalProfileUpdateView, LanguageCombinationListView, ProfessionalProfileDetailView, TranslatorAccountDeleteView, FilesView
+from .views import TranslatorRegisterView, TranslatorLoginView, TranslatorUpdateView, TranslatorDetailView, CombinationCreateView, CombinationUpdateView, CombinationDeleteView, ProfessionalProfileUpdateView, LanguageCombinationListView, ProfessionalProfileDetailView, TranslatorAccountDeleteView, FilesView, TranslatorDetailViewForAdmin
 from . import views
 
 
@@ -22,4 +22,5 @@ urlpatterns = [
     path('files/delete-voice-note/', views.delete_voice_note, name='delete-voice-note'),      
     path('change_pw/', views.change_password, name='change-pw'),
     path('translator/account_delete/', TranslatorAccountDeleteView.as_view(), name='translator-account-delete'),
+    path('api/translator_detail/<int:id>/', TranslatorDetailViewForAdmin.as_view(), name='translator-detail'),
 ]

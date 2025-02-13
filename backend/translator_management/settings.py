@@ -48,13 +48,17 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
 }
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30), # Token válido por 30 min
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7), # Token de refresco válido por 7 días
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 MIDDLEWARE = [
@@ -75,7 +79,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # Alternativa más abierta para desarrollo
-CORS_ALLOW_ALL_ORIGINS = True  # Permitir todos los orígenes (¡Usar solo en desarrollo!)
+# CORS_ALLOW_ALL_ORIGINS = True  # Permitir todos los orígenes (¡Usar solo en desarrollo!)
 
 
 ROOT_URLCONF = 'translator_management.urls'
