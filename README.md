@@ -1,149 +1,163 @@
-# Translation Marketplace Application
+# Translator Management Application
 
-## Descripción
-Este proyecto es una aplicación web desarrollada en Django (Backend) + React (Frontend), destinada a gestionar un Marketplace para traductores. Incluye funcionalidad para que los traductores se registren, inicien sesión, gestionen su perfil personal y profesional, añadan combinaciones de idiomas y administren sus archivos.
+Esta aplicación está diseñada para gestionar perfiles de traductores profesionales y permitir a los administradores realizar consultas personalizadas sobre la base de datos de traductores. El proyecto está dividido en dos partes principales:
 
-## Requisitos previos
+1. **Backend con Django**: Gestiona los perfiles de los traductores y proporciona una API para consultas personalizadas.
+2. **Frontend con React**: Permite a los administradores realizar consultas personalizadas y gestionar colaboraciones.
 
-- Python 3.8 o superior
-- Django 4.x
-- PostgreSQL (opcional, se puede usar SQLite para pruebas)
-- Bootstrap (incluido en el entorno virtual)
+---
 
-## Instalación
+## Estructura del Proyecto
 
-1. Clonar el repositorio:
+El proyecto está organizado de la siguiente manera:
+
+```
+/translator_management         # Carpeta raíz del proyecto
+  /django-backend              # Backend desarrollado con Django
+    /config                    # Configuración principal del proyecto Django
+      /settings.py             # Archivo de configuración
+      /urls.py                 # URLs principales
+      /...
+    /translators               # Aplicación de gestión de traductores
+      /templates               # Plantillas HTML para la interfaz de traductores
+      /static                  # Archivos estáticos (CSS, JS, imágenes)
+      /views                   # Vistas de Django para traductores
+      /models                  # Modelos de traductores
+      /...
+    /queries                   # Aplicación de consultas personalizadas
+      /views                   # Vistas de la API para consultas
+      /models                  # Modelos relacionados con las consultas
+      /...
+    /manage.py                 # Script de gestión de Django
+  /react-frontend              # Frontend desarrollado con React para administradores
+    /src                       # Código fuente de React
+      /components              # Componentes de React
+      /pages                   # Páginas de React
+      /services                # Lógica de llamadas a la API
+      /...
+    /public                    # Archivos públicos de React
+      /index.html              # Plantilla HTML principal
+      /...
+    /package.json              # Dependencias de React
+    /...
+```
+
+---
+
+## Características Principales
+
+### Backend (Django)
+- **Gestión de Traductores**:
+  - Registro y autenticación de traductores.
+  - Creación y actualización de perfiles profesionales.
+  - Subida de currículum y notas de voz.
+  - Gestión de combinaciones de idiomas.
+- **API para Consultas**:
+  - Consultas personalizadas para filtrar traductores según criterios específicos.
+  - Exportación de resultados a Excel.
+  - Autenticación JWT para usuarios administradores.
+
+### Frontend (React)
+- **Interfaz para Administradores**:
+  - Creación, guardado y ejecución de consultas personalizadas.
+  - Visualización detallada de perfiles de traductores.
+  - Exportación de resultados a Excel.
+  - Autenticación mediante JWT.
+
+---
+
+## Instalación y Configuración
+
+### Requisitos
+- Python 3.8+
+- Node.js 14+
+- Django 4.0+
+- React 17+
+- TypeScript 4.0+
+
+### Pasos para la Instalación
+
+1. Clona el repositorio:
    ```bash
-   git clone <URL_REPOSITORIO>
-   cd <NOMBRE_DEL_PROYECTO>
+   git clone https://github.com/tu-usuario/translator_management.git
+   cd translator_management
    ```
 
-2. Crear y activar un entorno virtual:
+2. Configura el entorno virtual para Django:
    ```bash
    python -m venv venv
    source venv/bin/activate  # En Windows: venv\Scripts\activate
    ```
 
-3. Instalar las dependencias:
+3. Instala las dependencias de Django:
    ```bash
+   cd django-backend
    pip install -r requirements.txt
    ```
 
-4. Configurar las variables de entorno:
-   Crea un archivo `.env` en la raíz del proyecto y añade las configuraciones necesarias, por ejemplo:
-   ```env
-   DEBUG=True
-   SECRET_KEY=<tu_secreto>
-   ALLOWED_HOSTS=localhost,127.0.0.1
-   DATABASE_URL=sqlite:///db.sqlite3  # Cambiar según la base de datos que uses
-   ```
+4. Configura la base de datos y las variables de entorno en `django-backend/config/settings.py`.
 
-5. Aplicar las migraciones:
+5. Aplica las migraciones:
    ```bash
    python manage.py migrate
    ```
 
-6. Crear un superusuario:
-   ```bash
-   python manage.py createsuperuser
-   ```
-
-7. Iniciar el servidor de desarrollo:
+6. Inicia el servidor de Django:
    ```bash
    python manage.py runserver
    ```
 
-## Estructura de URLs
+7. Configura el frontend de React:
+   ```bash
+   cd ../react-frontend
+   npm install
+   ```
 
-### URLs del proyecto principal
-```python
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('translators/', include('translators.urls')),
-    path('accounts/logout/', LogoutView.as_view(next_page='login'), name='logout'),
-]
-```
+8. Inicia el servidor de desarrollo de React:
+   ```bash
+   npm run dev
+   ```
 
-### URLs de la aplicación `translators`
-```python
-urlpatterns = [
-    path('register/', TranslatorRegisterView.as_view(), name='register'),
-    path('login/', TranslatorLoginView.as_view(), name='login'),
-    path('translator/edit/', TranslatorUpdateView.as_view(), name='translator-edit'),
-    path('translator/', TranslatorDetailView.as_view(), name='index'),
-    path('combinations/add/', CombinationCreateView.as_view(), name='combination-add'),
-    path('combinations/<int:pk>/edit/', CombinationUpdateView.as_view(), name='combination-edit'),
-    path('combination/<int:pk>/delete/', CombinationDeleteView.as_view(), name='combination-delete'),
-    path('', views.index, name='index'),
-    path('profile/', views.profile, name='profile'),
-    path('professional-profile/', ProfessionalProfileDetailView.as_view(), name='professional-profile-detail'),
-    path('professional_profile/edit/', ProfessionalProfileUpdateView.as_view(), name='professional-profile-edit'),
-    path('language_combinations-list/', LanguageCombinationListView.as_view(), name='language-combinations-list'),
-    path('files/', FilesView.as_view(), name='files'),
-    path('files/delete-cv/', views.delete_cv, name='delete-cv'),
-    path('files/delete-voice-note/', views.delete_voice_note, name='delete-voice-note'),
-    path('change_pw/', views.change_password, name='change-pw'),
-    path('translator/account_delete/', TranslatorAccountDeleteView.as_view(), name='translator-account-delete'),
-]
-```
+---
 
-## Formularios principales
+## Uso de la Aplicación
 
-### Registro de traductores
-Formulario para registrar nuevos traductores:
-```python
-class TranslatorRegistrationForm(UserCreationForm):
-    class Meta:
-        model = Translator
-        fields = ['first_name', 'last_name', 'email', 'password1', 'password2', 'address', 'postal_code', 'province', 'country', 'gender', 'mobile_phone', 'birth_date']
-```
+### Para Traductores
+- Accede a la interfaz de traductores en `http://localhost:8000`.
+- Regístrate o inicia sesión para gestionar tu perfil.
 
-### Login de traductores
-Formulario para iniciar sesión:
-```python
-class TranslatorLoginForm(AuthenticationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'}))
-```
+### Para Administradores
+- Accede a la interfaz de administradores en `http://localhost:3000`.
+- Inicia sesión con tus credenciales de administrador.
+- Realiza consultas personalizadas y gestiona colaboraciones.
 
-### Perfil profesional
-Formulario para actualizar el perfil profesional del traductor:
-```python
-class ProfessionalProfileForm(forms.ModelForm):
-    class Meta:
-        model = ProfessionalProfile
-        fields = ['native_languages', 'education', 'degree', 'employment_status', 'experience', 'softwares']
-```
+---
 
-### Archivos
-Formulario para subir o gestionar archivos:
-```python
-class FilesForm(forms.ModelForm):
-    class Meta:
-        model = Files
-        fields = ['cv_file', 'voice_note']
-```
+## Escalabilidad y Personalización
+La aplicación está diseñada para ser escalable y adaptable:
+- **Cambio de Base de Datos**: Puede modificarse fácilmente para gestionar otros tipos de profesionales o clientes.
+- **Personalización de la Interfaz**: Los colores y el logotipo pueden ajustarse a los colores corporativos de la empresa.
 
-### Combinaciones de idiomas
-Formulario para añadir o editar combinaciones de idiomas:
-```python
-class LanguageCombinationForm(forms.ModelForm):
-    class Meta:
-        model = LanguageCombination
-        fields = ['source_language', 'target_language', 'services', 'text_types', 'price_per_word', 'sworn_price_per_word', 'price_per_hour']
-```
+---
 
-## Vistas principales
+## Contribución
+Si deseas contribuir a este proyecto, sigue estos pasos:
+1. Haz un fork del repositorio.
+2. Crea una nueva rama (`git checkout -b feature/nueva-funcionalidad`).
+3. Realiza tus cambios y haz commit (`git commit -am 'Añade nueva funcionalidad'`).
+4. Haz push a la rama (`git push origin feature/nueva-funcionalidad`).
+5. Abre un Pull Request.
 
-- **Registrar traductor:** `TranslatorRegisterView`
-- **Iniciar sesión:** `TranslatorLoginView`
-- **Editar perfil:** `TranslatorUpdateView`
-- **Ver perfil:** `TranslatorDetailView`
-- **Añadir combinación:** `CombinationCreateView`
-- **Editar combinación:** `CombinationUpdateView`
-- **Eliminar combinación:** `CombinationDeleteView`
+---
 
 ## Licencia
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+Este proyecto está bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
 
+---
 
+## Contacto
+Si tienes alguna pregunta o sugerencia, no dudes en contactarme a través de mi perfil de GitHub o por correo electrónico.
+
+---
+
+¡Gracias por revisar mi proyecto! Espero que esta aplicación sea útil para la gestión de traductores y consultas personalizadas. 😊

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil profesional{% endblock %}
+{% block pagetitle %}Perfil profesional{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Tarjeta de Información Personal -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Información Personal</h5>
+                <hr>
+                <p class="mb-3">
+                    <strong>Lenguas Nativas:</strong> 
+                    {{ professional_profile.native_languages|default:"No especificado" }}
+                </p>
+                <p class="mb-3">
+                    <strong>Educación:</strong> 
+                    {{ professional_profile.education|default:"No especificado" }}
+                </p>
+                <p class="mb-3">
+                    <strong>Grado:</strong> 
+                    {{ professional_profile.degree|default:"No especificado" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta de Experiencia y Herramientas -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Experiencia y Herramientas</h5>
+                <hr>
+                <p class="mb-3">
+                    <strong>Situación Laboral:</strong> 
+                    {{ professional_profile.get_employment_status_display|default:"No especificado" }}
+                </p>
+                <p class="mb-3">
+                    <strong>Experiencia:</strong> 
+                    {{ professional_profile.get_experience_display|default:"No especificado" }}
+                </p>
+                <p class="mb-3">
+                    <strong>Softwares:</strong> 
+                    {{ professional_profile.softwares|default:"No especificado" }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botón de acción -->
+<div class="text-center mt-4">
+    <a href="{% url 'professional-profile-edit' %}" class="btn btn-primary px-4 py-2">
+        Editar Perfil
+    </a>
+</div>
+{% endblock %}
