@@ -8,5 +8,5 @@
 
 
 #!/bin/bash
-cd backend && python3 manage.py runserver &
-cd frontend && npm run dev
+cd django-backend && python manage.py runserver &
+cd react-frontend && npm run dev

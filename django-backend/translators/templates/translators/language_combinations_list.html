@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Combinaciones de idiomas{% endblock %}
+{% block pagetitle %}Combinaciones de idiomas{% endblock %}
+
+{% block content %}
+{% if combinations.exists %}
+    <div class="row">
+        {% for combination in combinations %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ combination.source_language }} a {{ combination.target_language }}</h5>
+                        <hr>
+                        <p class="card-text">
+                            <strong>Servicios:</strong> {{ combination.services }}<br>
+                            <strong>Tarifa Palabra:</strong> {{ combination.price_per_word|default:"-" }}<br>
+                            <strong>Tarifa Jurada:</strong> {{ combination.sworn_price_per_word|default:"-" }}<br>
+                            <strong>Tarifa Hora:</strong> {{ combination.price_per_hour|default:"-" }}
+                        </p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'combination-edit' combination.id %}" class="btn btn-sm btn-primary">Editar</a>
+                        <form action="{% url 'combination-delete' combination.id %}" method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta combinación?');">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted text-center mt-3">No tienes combinaciones registradas.</p>
+{% endif %}
+<div class="text-center mt-4">
+    <a href="{% url 'combination-add' %}" class="btn btn-success">Añadir Nueva Combinación</a>
+</div>
+{% endblock %}
