@@ -64,7 +64,7 @@ const QueryList: React.FC = () => {
             <thead>
               <tr>
                 <th>Nombre</th>
-                <th className="d-none d-md-table-cell">Consulta</th> {/* Oculta en móviles */}
+                <th className="d-none d-md-table-cell">Consulta</th>{/* Oculta en móviles */}
                 <th>Fecha de creación</th>
                 <th>Acciones</th>
               </tr>
@@ -73,7 +73,7 @@ const QueryList: React.FC = () => {
               {queries.map(query => (
                 <tr key={query.id}>
                   <td><strong>{query.name}</strong></td>
-                  <td className="d-none d-md-table-cell fs-custom-7"> {/* Oculta en móviles */}
+                  <td className="d-none d-md-table-cell fs-custom-7">{/* Oculta en móviles */}
                     {formatQueryConditions(query.query)}
                   </td>
                   <td>

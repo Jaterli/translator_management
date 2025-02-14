@@ -139,7 +139,7 @@ class Files(models.Model):
     translator = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='curriculum',
+        related_name='files',
         verbose_name='Traductor'
     )
     cv_file = models.FileField(

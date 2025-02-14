@@ -1,9 +1,10 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.tsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importar FontAwesome
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons'; // Importar el icono de logout
 
-function Navbar() {
+const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
 
   return (
@@ -36,21 +37,22 @@ function Navbar() {
         {/* Menú de navegación */}
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <Link className="nav-link" to="/list_queries">Consultas</Link>
-            </li>               
-            <li className="nav-item">
-              <Link className="nav-link" to="/query_results">Resultados</Link>
-            </li>  
-
-            {/* Mostrar nombre y correo del usuario si está autenticado */}
+            {/* Mostrar enlaces y detalles del usuario si está autenticado */}
             {isAuthenticated && user && (
-              <li className="nav-item">
-                <div className="nav-link text-info">
-                  <span className="me-2"> {user.name}</span>
-                  <span>({user.email})</span>
-                </div>
-              </li>
+              <>          
+                <li className="nav-item">
+                  <Link className="nav-link" to="/list_queries">Consultas</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/query_results">Resultados</Link>
+                </li>
+                <li className="nav-item">
+                  <div className="nav-link text-info">
+                    <span className="me-2">{user.name}</span>
+                    <span>({user.email})</span>
+                  </div>
+                </li>
+              </>
             )}
 
             {/* Botón de login/logout */}
@@ -59,12 +61,13 @@ function Navbar() {
                 <button 
                   onClick={logout} 
                   className="btn btn-outline-light"
-                  title="Logout"
+                  aria-label="Cerrar sesión"
+                  title="Cerrar sesión"
                 >
                   <FontAwesomeIcon icon={faSignOutAlt} /> {/* Icono de logout */}
                 </button>
               ) : (
-                <Link to="/login" className="btn btn-outline-light">
+                <Link to="/login" className="btn btn-outline-light" aria-label="Iniciar sesión">
                   Login
                 </Link>
               )}
@@ -74,6 +77,6 @@ function Navbar() {
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;

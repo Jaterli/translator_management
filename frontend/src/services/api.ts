@@ -69,13 +69,6 @@ export async function login(username: string, password: string): Promise<AuthRes
   return response.data;
 }
 
-// Vista detalle de traductor
-// export async function getTranslatorDetail(id: string) {
-//   const response = await instance.get(`/translators/api/translator_detail/${id}/`);
-//   return response.data;
-// }
-
-
 import axios from 'axios';
 
 // Vista detalle de traductor
