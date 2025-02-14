@@ -202,6 +202,10 @@ const QueryResults: React.FC = () => {
   };
 
   const renderLanguageCombinationTable = (combinations: any[]) => {
+    if (!combinations || combinations.length === 0) {
+      return 'N/A';
+    }
+        
     return (
       <Table striped bordered size="sm" className="mb-0 fs-custom-7">
         <thead>
