@@ -86,7 +86,7 @@ const QueryList: React.FC = () => {
                   <td>
                     <div className="d-flex flex-column flex-md-row gap-2">
                       <Link
-                        to={`/query_results/${query.id}`}
+                        to={`/query-results/${query.id}`}
                         className="btn btn-sm btn-primary"
                       >
                         <FontAwesomeIcon icon={faEye} /> Ejecutar
@@ -109,7 +109,7 @@ const QueryList: React.FC = () => {
 
       <div className="mt-4 text-center">
 
-      <LinkButton to="/query_form" icon={faPlusCircle} variant="primary" size="lg">
+      <LinkButton to="/query-form" icon={faPlusCircle} variant="primary" size="lg">
         Crear una consulta
       </LinkButton>
 

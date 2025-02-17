@@ -53,7 +53,7 @@ class TranslatorLoginView(LoginView):
 
     def get_success_url(self):
         messages.success(self.request, f"Bienvenid@, {self.request.user.email}!")
-        return reverse_lazy('index')
+        return reverse_lazy('dashboard')
 
     def form_valid(self, form):
         """
@@ -76,25 +76,25 @@ class TranslatorLoginView(LoginView):
 class TranslatorUpdateView(LoginRequiredMixin, UpdateView):
     model = Translator
     form_class = TranslatorForm
-    template_name = 'translators/profile_edit.html'
-    success_url = reverse_lazy('profile')
+    template_name = 'translators/personal-data-edit.html'
+    success_url = reverse_lazy('personal_data')
 
     def get_object(self):
         return self.request.user
 
 
-class TranslatorDetailView(LoginRequiredMixin, DetailView):
-    model = Translator
-    template_name = 'translators/translator_detail.html'
-    context_object_name = 'translator'
+# class TranslatorDetailView(LoginRequiredMixin, DetailView):
+#     model = Translator
+#     template_name = 'translators/personal-data.html'
+#     context_object_name = 'translator'
 
-    def get_object(self):
-        return self.request.user
+#     def get_object(self):
+#         return self.request.user
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['combinations'] = LanguageCombinationForm.objects.filter(translator=self.object)
-        return context
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['combinations'] = LanguageCombinationForm.objects.filter(translator=self.object)
+#         return context
 
 
 class ProfessionalProfileDetailView(LoginRequiredMixin, DetailView):
@@ -102,7 +102,7 @@ class ProfessionalProfileDetailView(LoginRequiredMixin, DetailView):
     Clase de vista para mostrar los datos del perfil profesional de un traductor.
     """
     model = ProfessionalProfile
-    template_name = 'translators/professional_profile_detail.html'
+    template_name = 'translators/professional-profile.html'
     context_object_name = 'professional_profile'
 
     def get_object(self, queryset=None):
@@ -115,8 +115,8 @@ class ProfessionalProfileDetailView(LoginRequiredMixin, DetailView):
 class ProfessionalProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = ProfessionalProfile
     form_class = ProfessionalProfileForm
-    template_name = 'translators/professional_profile_edit.html'
-    success_url = reverse_lazy('professional-profile-detail')
+    template_name = 'translators/professional-profile-edit.html'
+    success_url = reverse_lazy('professional_profile')
 
     def get_object(self, queryset=None):
         """
@@ -149,7 +149,7 @@ class ProfessionalProfileUpdateView(LoginRequiredMixin, UpdateView):
 class FilesView(LoginRequiredMixin, UpdateView):
     model = Files
     form_class = FilesForm
-    template_name = 'translators/files_form.html'
+    template_name = 'translators/files-form.html'
     success_url = reverse_lazy('files')  # Cambiar por la URL correspondiente
 
     def get_object(self, queryset=None):
@@ -201,8 +201,8 @@ def delete_voice_note(request):
 class CombinationCreateView(CreateView):
     model = LanguageCombination
     form_class = LanguageCombinationForm
-    template_name = 'translators/language_combinations_edit.html'
-    success_url = reverse_lazy('language-combinations-list')
+    template_name = 'translators/language-combinations-edit.html'
+    success_url = reverse_lazy('language_combinations')
 
     def form_valid(self, form):
         form.instance.translator = self.request.user
@@ -212,8 +212,8 @@ class CombinationCreateView(CreateView):
 class CombinationUpdateView(UserPassesTestMixin, UpdateView):
     model = LanguageCombination
     form_class = LanguageCombinationForm
-    template_name = 'translators/language_combinations_edit.html'
-    success_url = reverse_lazy('language-combinations-list')
+    template_name = 'translators/language-combinations-edit.html'
+    success_url = reverse_lazy('language_combinations')
 
     def test_func(self):
         combination = self.get_object()
@@ -226,13 +226,13 @@ class CombinationUpdateView(UserPassesTestMixin, UpdateView):
 
 class CombinationDeleteView(LoginRequiredMixin, DeleteView):
     model = LanguageCombination
-    template_name = 'translators/combination_confirm_delete.html'
-    success_url = reverse_lazy('language-combinations-list')
+    template_name = 'translators/combination-confirm_delete.html'
+    success_url = reverse_lazy('language_combinations')
 
 
 class LanguageCombinationListView(LoginRequiredMixin, ListView):
     model = LanguageCombination
-    template_name = 'translators/language_combinations_list.html'
+    template_name = 'translators/language-combinations.html'
     context_object_name = 'combinations'
 
     # Si deseas filtrar las combinaciones por el traductor logueado
@@ -266,15 +266,15 @@ def index(request):
 
 
 @login_required
-def profile(request):
+def personal_data(request):
     translator = request.user
-    return render(request, 'translators/profile.html', {'translator': translator})
+    return render(request, 'translators/personal-data.html', {'translator': translator})
 
 
 @login_required
 def language_combinations(request):
     combinations = request.user.combinations.all()
-    return render(request, 'translators/language_combinations.html', {'language-combinations': combinations})
+    return render(request, 'translators/language-combinations.html', {'language-combinations': combinations})
 
 
 @login_required
@@ -284,10 +284,10 @@ def change_password(request):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
-            return redirect('profile')
+            return redirect('personal_data')
     else:
         form = PasswordChangeForm(user=request.user)
-    return render(request, 'translators/change_password.html', {'form': form})
+    return render(request, 'translators/change-password.html', {'form': form})
 
 
 class TranslatorDetailViewForAdmin(generics.RetrieveAPIView):

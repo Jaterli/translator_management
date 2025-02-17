@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Perfil de traductor{% endblock %}
-{% block pagetitle %}Perfil de traductor{% endblock %}
+{% block title %}Datos personales{% endblock %}
+{% block pagetitle %}Datos personales{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -18,7 +18,7 @@
                     <li><strong>Género:</strong> {{ translator.gender }}</li>
                     <li><strong>Fecha de nacimiento:</strong> {{ translator.birth_date }}</li>
                     <li>
-                        <a href="{% url 'change-pw' %}" class="link-primary">Cambiar Contraseña de acceso</a>
+                        <a href="{% url 'change_pw' %}" class="link-primary">Cambiar Contraseña de acceso</a>
                     </li>
                 </ul>
             </div>
@@ -53,11 +53,11 @@
 
 <!-- Botón de acción -->
 <div class="text-center mt-4">
-    <a href="{% url 'translator-edit' %}" class="btn btn-primary px-4 py-2">Editar Perfil</a>
+    <a href="{% url 'translator_edit' %}" class="btn btn-primary px-4 py-2">Editar Perfil</a>
 </div>
 
 <!-- Enlace para dar de baja la cuenta -->
 <div class="text-center mt-3">
-    <a href="{% url 'translator-account-delete' %}" class="link-danger">Haz clic aquí si deseas dar de baja tu cuenta</a>
+    <a href="{% url 'translator_account_delete' %}" class="link-danger">Haz clic aquí si deseas dar de baja tu cuenta</a>
 </div>
 {% endblock %}

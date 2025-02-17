@@ -78,7 +78,7 @@ export async function getTranslatorDetail(id: string) {
       throw new Error('No estás autenticado. Por favor, inicia sesión.');
   }
 
-  const response = await axios.get(`http://localhost:8000/translators/api/translator_detail/${id}/`, {
+  const response = await axios.get(`http://localhost:8000/translators/api/translator-detail/${id}/`, {
       headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

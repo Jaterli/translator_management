@@ -14,7 +14,7 @@
                 <strong>Currículum actual:</strong>
                 <a href="{{ files.cv_file.url }}" target="_blank">Ver archivo</a>
                 |
-                <a href="{% url 'delete-cv' %}" class="link-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este currículum?');">
+                <a href="{% url 'delete_cv' %}" class="link-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este currículum?');">
                     Eliminar currículum
                 </a>
             </p>
@@ -40,7 +40,7 @@
                     Tu navegador no soporta el elemento de audio.
                 </audio>
                 |
-                <a href="{% url 'delete-voice-note' %}" class="link-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta nota de voz?');">
+                <a href="{% url 'delete_voice_note' %}" class="link-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta nota de voz?');">
                     Eliminar nota de voz
                 </a>
             </p>

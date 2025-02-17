@@ -4,80 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Área de traductor{% endblock %}</title>
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <style>
-        .navbar {
-            background-color: #6c63ff;
-            color: white;
-        }
-        .navbar-brand {
-            font-weight: bold;
-            color: white !important;
-        }
-        .navbar-nav .nav-link {
-            color: white !important;
-        }
-        .navbar-toggler {
-            border-color: white;
-        }
-        .navbar-toggler-icon {
-            filter: invert(1);
-        }
-        .nav-item .btn-link {
-            color: white;
-            text-decoration: none;
-        }
-        .nav-item .btn-link:hover {
-            text-decoration: underline;
-        }
-        .nav-link.active {
-            text-decoration: underline;
-        }        
+        /* Estilos personalizados para el cuerpo de la página (fuera de la barra de navegación) */
         body {
             background-color: #f8f9fa;
         }
 
-        .fs-custom-7{
+        .fs-custom-7 {
             font-size: 0.8rem;
         }
-        
-        @media (max-width: 768px) { 
+
+        @media (max-width: 768px) {
             .fs-custom-sm-7 {
-                font-size: 0.8rem; /* Tamaño de fuente normal */
+                font-size: 0.8rem;
             }
-        }        
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand fw-light text-muted" href="{% url 'index' %}">{{ user.email }}</a>
+            <!-- Brand/logo -->
+            <a class="navbar-brand fw-light" href="{% url 'dashboard' %}">{{ user.email }}</a>
+
+            <!-- Botón para colapsar la barra en dispositivos móviles -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
+            <!-- Contenido de la barra de navegación -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     {% if user.is_authenticated %}
+                        <!-- Enlaces para usuarios autenticados -->
                         <li class="nav-item">
-                            <a href="{% url 'profile' %}" class="nav-link {% if request.path == '/translators/profile/' %}active{% endif %}">Perfil del Traductor</a>
+                            <a href="{% url 'personal_data' %}" class="nav-link {% if request.path == '/translators/personal-data/' %}active{% endif %}">Datos personales</a>
                         </li>
                         <li class="nav-item">
-                            <a href="{% url 'professional-profile-detail' %}" class="nav-link {% if request.path == '/translators/professional-profile/' %}active{% endif %}">Formación y experiencia</a>
+                            <a href="{% url 'professional_profile' %}" class="nav-link {% if request.path == '/translators/professional-profile/' %}active{% endif %}">Formación y experiencia</a>
                         </li>
                         <li class="nav-item">
-                            <a href="{% url 'language-combinations-list' %}" class="nav-link {% if request.path == '/translators/language_combinations-list/' %}active{% endif %}">Combinaciones de Idiomas</a>
+                            <a href="{% url 'language_combinations' %}" class="nav-link {% if request.path == '/translators/language-combinations/' %}active{% endif %}">Combinaciones de Idiomas</a>
                         </li>
                         <li class="nav-item">
                             <a href="{% url 'files' %}" class="nav-link {% if request.path == '/translators/files/' %}active{% endif %}">Documentos</a>
                         </li>
-                    
-                        <li class="nav-item">
+
+                        <!-- Botón de cerrar sesión con ícono -->
+                        <li class="nav-item ms-2 d-flex align-items-center">
                             <form method="post" action="{% url 'logout' %}" class="d-inline">
                                 {% csrf_token %}
-                                <button type="submit" class="nav-link link-danger">Cerrar sesión</button>
+                                <button type="submit" class="btn btn-outline-light btn-sm" title="Cerrar sesión">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Salir
+                                </button>
                             </form>
-                        </li>                        
-                    {% else %}                
+                        </li>
+                    {% else %}
+                        <!-- Enlaces para usuarios no autenticados -->
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a>
                         </li>
@@ -90,25 +78,29 @@
         </div>
     </nav>
 
+    <!-- Contenido principal -->
     <div class="container mt-4 mb-4">
         <div class="container mt-5">
-            
             <h1 class="mb-5 text-center text-primary">{% block pagetitle %}{% endblock %}</h1>
-            
+
+            <!-- Mensajes de alerta -->
             {% if messages %}
-            <div>
-                {% for message in messages %}
-                <div class="text-center alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}">
-                    {{ message }}
+                <div>
+                    {% for message in messages %}
+                        <div class="text-center alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-            </div>
-            {% endif %}        
+            {% endif %}
+
+            <!-- Bloque de contenido -->
             {% block content %}
             {% endblock %}
-
         </div>
     </div>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

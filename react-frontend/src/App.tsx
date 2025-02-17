@@ -26,10 +26,10 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-            <Route path="/query_form" element={<PrivateRoute><SQLQueryForm /></PrivateRoute>} />
-            <Route path="/list_queries" element={<PrivateRoute><QueryList /></PrivateRoute>} />
-            <Route path="/query_results/:queryId?" element={<PrivateRoute><QueryResults /></PrivateRoute>} />
-            <Route path="/translator_detail/:id" element={<PrivateRoute><TranslatorDetail /></PrivateRoute> } />            
+            <Route path="/query-form" element={<PrivateRoute><SQLQueryForm /></PrivateRoute>} />
+            <Route path="/list-queries" element={<PrivateRoute><QueryList /></PrivateRoute>} />
+            <Route path="/query-results/:queryId?" element={<PrivateRoute><QueryResults /></PrivateRoute>} />
+            <Route path="/translator-detail/:id" element={<PrivateRoute><TranslatorDetail /></PrivateRoute> } />            
           </Routes>
           <Footer />
         </Container>

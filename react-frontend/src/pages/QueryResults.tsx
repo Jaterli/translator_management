@@ -297,7 +297,7 @@ const QueryResults: React.FC = () => {
                         {col === "LanguageCombination" ? (
                           renderLanguageCombinationTable(row[col])
                         ) : col === "Translator_id" ? ( // Verifica si la columna es "Translator_id"
-                          <Link to={`/translator_detail/${row[col]}/`}>
+                          <Link to={`/translator-detail/${row[col]}/`}>
                             <FontAwesomeIcon icon={faEye} /> {/* Usa el icono faEye */}
                           </Link>
                         ) : (
@@ -314,10 +314,10 @@ const QueryResults: React.FC = () => {
           )}
         </Card.Body>
         <Card.Footer className="d-flex flex-column flex-md-row gap-2 justify-content-center">
-          <LinkButton to="/list_queries" icon={faList} className='w-100 mb-2 mb-md-0' variant="success" size="lg">
+          <LinkButton to="/list-queries" icon={faList} className='w-100 mb-2 mb-md-0' variant="success" size="lg">
             Listar consultas
           </LinkButton>
-          <LinkButton to="/query_form" icon={faPlusCircle} className='w-100 mb-2 mb-md-0' variant="primary" size="lg">
+          <LinkButton to="/query-form" icon={faPlusCircle} className='w-100 mb-2 mb-md-0' variant="primary" size="lg">
             Crear una consulta
           </LinkButton>
           <LinkButton  onClick={() => exportToExcel()} icon={faFileExcel} variant="warning" size="lg">
