@@ -20,15 +20,15 @@ const Dashboard: React.FC = () => {
 
       <div className="d-flex flex-column flex-md-row gap-2 justify-content-center mt-4">
 
-        <LinkButton to="/query_form" icon={faPlusCircle} className='w-100 mb-2 mb-md-0' variant="primary" size="lg">
+        <LinkButton to="/query-form" icon={faPlusCircle} className='w-100 mb-2 mb-md-0' variant="primary" size="lg">
           Crear una consulta
         </LinkButton>
         
-        <LinkButton to="list_queries" icon={faList} className='w-100 mb-2 mb-md-0' variant="success" size="lg">
+        <LinkButton to="list-queries" icon={faList} className='w-100 mb-2 mb-md-0' variant="success" size="lg">
           Listar consultas
         </LinkButton>
 
-        <LinkButton to="query_results" icon={faList} className='w-100' variant="info" size="lg">
+        <LinkButton to="query-results" icon={faList} className='w-100' variant="info" size="lg">
           Mostrar resultados
         </LinkButton>
 

@@ -20,8 +20,8 @@
                         </p>
                     </div>
                     <div class="card-footer text-center">
-                        <a href="{% url 'combination-edit' combination.id %}" class="btn btn-sm btn-primary">Editar</a>
-                        <form action="{% url 'combination-delete' combination.id %}" method="POST" class="d-inline">
+                        <a href="{% url 'combination_edit' combination.id %}" class="btn btn-sm btn-primary">Editar</a>
+                        <form action="{% url 'combination_delete' combination.id %}" method="POST" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar esta combinación?');">Eliminar</button>
                         </form>
@@ -34,6 +34,6 @@
     <p class="text-muted text-center mt-3">No tienes combinaciones registradas.</p>
 {% endif %}
 <div class="text-center mt-4">
-    <a href="{% url 'combination-add' %}" class="btn btn-success">Añadir Nueva Combinación</a>
+    <a href="{% url 'combination_add' %}" class="btn btn-success">Añadir Nueva Combinación</a>
 </div>
 {% endblock %}

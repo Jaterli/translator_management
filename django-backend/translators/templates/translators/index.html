@@ -8,11 +8,11 @@
         <div class="col-md-6 mb-4">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Perfil del Traductor</h5>
-                    <p class="card-text text-muted">Accede a la información básica del perfil del traductor, como nombre, correo electrónico y dirección.</p>
+                    <h5 class="card-title">Datos personales</h5>
+                    <p class="card-text text-muted">Accede a la información personal del traductor, como nombre, correo electrónico y dirección.</p>
                 </div>
                 <div class="card-footer bg-transparent border-0">
-                    <a href="{% url 'profile' %}" class="btn btn-primary w-100">Ir</a>
+                    <a href="{% url 'personal_data' %}" class="btn btn-primary w-100">Ir</a>
                 </div>
             </div>
         </div>
@@ -25,7 +25,7 @@
                     <p class="card-text text-muted">Edita detalles relacionados con tu perfil profesional, como formación académica, experiencia laboral y herramientas utilizadas.</p>
                 </div>
                 <div class="card-footer bg-transparent border-0">
-                    <a href="{% url 'professional-profile-detail' %}" class="btn btn-primary w-100">Ir</a>
+                    <a href="{% url 'professional_profile' %}" class="btn btn-primary w-100">Ir</a>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
                     <p class="card-text text-muted">Gestiona las combinaciones de idiomas que ofreces, incluyendo idioma de origen, idioma destino y tarifas.</p>
                 </div>
                 <div class="card-footer bg-transparent border-0">
-                    <a href="{% url 'language-combinations-list' %}" class="btn btn-primary w-100">Ir</a>
+                    <a href="{% url 'language_combinations' %}" class="btn btn-primary w-100">Ir</a>
                 </div>
             </div>
         </div>

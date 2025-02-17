@@ -41,10 +41,10 @@ const Navbar: React.FC = () => {
             {isAuthenticated && user && (
               <>          
                 <li className="nav-item">
-                  <Link className="nav-link" to="/list_queries">Consultas</Link>
+                  <Link className="nav-link" to="/list-queries">Consultas</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/query_results">Resultados</Link>
+                  <Link className="nav-link" to="/query-results">Resultados</Link>
                 </li>
                 <li className="nav-item">
                   <div className="nav-link text-info">
@@ -56,18 +56,18 @@ const Navbar: React.FC = () => {
             )}
 
             {/* Botón de login/logout */}
-            <li className="nav-item">
+            <li className="nav-item ms-2 d-flex align-items-center">
               {isAuthenticated ? (
                 <button 
                   onClick={logout} 
-                  className="btn btn-outline-light"
+                  className="btn btn-outline-light btn-sm"
                   aria-label="Cerrar sesión"
                   title="Cerrar sesión"
                 >
-                  <FontAwesomeIcon icon={faSignOutAlt} /> {/* Icono de logout */}
+                  <FontAwesomeIcon icon={faSignOutAlt} /> Salir{/* Icono de logout */}
                 </button>
               ) : (
-                <Link to="/login" className="btn btn-outline-light" aria-label="Iniciar sesión">
+                <Link to="/login" className="btn btn-outline-light btn-sm" aria-label="Iniciar sesión">
                   Login
                 </Link>
               )}
