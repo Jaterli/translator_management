@@ -132,7 +132,7 @@ const SQLQueryForm: React.FC = () => {
       const response = await saveQuery(payload);
       alert(response.message || '¡Consulta guardada exitosamente!');
       setError('');
-      navigate('/list_queries'); // Redirigir al listado de consultas
+      navigate('/list-queries'); // Redirigir al listado de consultas
     } catch (error) {
       console.error('Error saving query:', error);
       setError('Hubo un error al guardar la consulta. Intenta de nuevo más tarde.');
