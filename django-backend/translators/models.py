@@ -72,8 +72,8 @@ class LanguageCombination(models.Model):
     target_language = models.CharField(max_length=50, choices=LANGUAGES, blank=False, verbose_name='Idioma Destino')
     services = models.TextField(max_length=200, blank=True, verbose_name='Servicios')
     text_types = models.TextField(max_length=100, blank=True, verbose_name='Textos')
-    price_per_word = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name='Precio/pal. (€)')
-    sworn_price_per_word = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name='Precio/pal. Jurada (€)')
+    price_per_word = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True, verbose_name='Precio/pal. (€)')
+    sworn_price_per_word = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True, verbose_name='Precio/pal. Jurada (€)')
     price_per_hour = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, verbose_name='Precio/hora (€)')
 
     REQUIRED_FIELDS = ['source_language', 'target_language']

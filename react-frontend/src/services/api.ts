@@ -34,32 +34,32 @@ interface AuthResponse {
 
 // Obtener campos
 export async function getModelFields(): Promise<{ fields: Field[] }> {
-  const response = await instance.get('/get_fields/');
+  const response = await instance.get('/get-fields/');
   return response.data;
 }
 
 
 // Guardar consulta
 export async function saveQuery(data: { name: string; query: any }): Promise<ApiResponse<Query>> {
-  const response = await instance.post('/save_query/', data);
+  const response = await instance.post('/save-query/', data);
   return response.data;
 }
 
 // Obtener listado de consultas
 export async function getQueries(): Promise<ApiResponse<Query[]>> {
-  const response = await instance.get('/list_queries/');
+  const response = await instance.get('/list-queries/');
   return response.data;
 }
 
 // Eliminar consulta
 export async function deleteQuery(queryId: number): Promise<ApiResponse<{ id: number }>> {
-  const response = await instance.delete(`/delete_query/${queryId}/`);
+  const response = await instance.delete(`/delete-query/${queryId}/`);
   return response.data;
 }
 
 // Ejecutar consulta
 export async function executeQuery(queryId: string): Promise<ApiResponse<any>> {
-  const response = await instance.get(`/execute_query/${queryId}/`);
+  const response = await instance.get(`/execute-query/${queryId}/`);
   return response.data;
 }
 
