@@ -1,5 +1,8 @@
 import instance from './axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+
 // Definición de tipos e interfaces
 interface Field {
   name: string;
@@ -65,7 +68,7 @@ export async function executeQuery(queryId: string): Promise<ApiResponse<any>> {
 
 // Autenticación (login)
 export async function login(username: string, password: string): Promise<AuthResponse> {
-  const response = await instance.post<AuthResponse>('/auth/login/', { username, password });
+  const response = await instance.post<AuthResponse>(`${API_BASE_URL}/auth/login/`, { username, password });
   return response.data;
 }
 
@@ -78,7 +81,7 @@ export async function getTranslatorDetail(id: string) {
       throw new Error('No estás autenticado. Por favor, inicia sesión.');
   }
 
-  const response = await axios.get(`http://localhost:8000/translators/api/translator-detail/${id}/`, {
+  const response = await axios.get(`${API_BASE_URL}/translator-detail/${id}/`, {
       headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
