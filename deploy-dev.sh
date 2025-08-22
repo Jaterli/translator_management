@@ -10,3 +10,4 @@
 #!/bin/bash
 cd ./django-backend && python3 manage.py runserver &
 cd ./react-frontend && npm run dev
+cp .env.development .env

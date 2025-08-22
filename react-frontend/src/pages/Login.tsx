@@ -44,7 +44,7 @@ const Login = () => {
             style={{ maxHeight: '100px', width: 'auto' }}
           />
         </div>
-        <h2 className="text-center mb-4">Iniciar sesión (prueba)</h2>
+        <h2 className="text-center mb-4">Iniciar sesión</h2>
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="username">
             <Form.Label>Usuario</Form.Label>
