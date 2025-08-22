@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:dev": "cp .env.development .env && vite build",
+    "build:prod": "cp .env.production .env && vite build",
+    "deploy": "yarn build:prod && your-deploy-command"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
