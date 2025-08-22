@@ -13,7 +13,7 @@ export default defineConfig({
     open: true,    
   },
   build: {
-    outDir: '../backend/static', // Asegura que la build se coloque en la carpeta estática del backend
+    outDir: 'dist',
   },
 
 })
