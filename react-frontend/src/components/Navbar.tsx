@@ -1,17 +1,28 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.tsx';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importar FontAwesome
-import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons'; // Importar el icono de logout
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSignOutAlt, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
         {/* Logo y texto */}
-        <Link className="navbar-brand d-flex align-items-center" to="/">
+        <NavLink 
+          className={({ isActive }) => 
+            `navbar-brand d-flex align-items-center ${isActive ? 'active' : ''}`
+          } 
+          to="/"
+          end
+        >
           <img 
             src="/images/logo-gc.png" 
             alt="Logo" 
@@ -19,35 +30,45 @@ const Navbar: React.FC = () => {
             className="d-inline-block align-top"
           />
           <span className="ms-2">Gestor de consultas</span>
-        </Link>
+        </NavLink>
 
-        {/* Botón de toggle para dispositivos móviles */}
+        {/* Botón de toggle */}
         <button 
           className="navbar-toggler" 
           type="button" 
-          data-bs-toggle="collapse" 
-          data-bs-target="#navbarNav" 
-          aria-controls="navbarNav" 
-          aria-expanded="false" 
+          onClick={toggleMenu}
           aria-label="Toggle navigation"
         >
-          <span className="navbar-toggler-icon"></span>
+          <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} />
         </button>
 
         {/* Menú de navegación */}
-        <div className="collapse navbar-collapse" id="navbarNav">
+        <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
           <ul className="navbar-nav ms-auto">
-            {/* Mostrar enlaces y detalles del usuario si está autenticado */}
             {isAuthenticated && user && (
               <>          
                 <li className="nav-item">
-                  <Link className="nav-link" to="/list-queries">Consultas</Link>
+                  <NavLink 
+                    className={({ isActive }) => 
+                      `nav-link ${isActive ? 'active' : ''}`
+                    }
+                    to="/list-queries"
+                  >
+                    Consultas
+                  </NavLink>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/query-results">Resultados</Link>
+                  <NavLink 
+                    className={({ isActive }) => 
+                      `nav-link ${isActive ? 'active' : ''}`
+                    }
+                    to="/query-results"
+                  >
+                    Resultados
+                  </NavLink>
                 </li>
                 <li className="nav-item">
-                  <div className="nav-link text-info">
+                  <div className="text-info">
                     <span className="me-2">{user.name}</span>
                     <span>({user.email})</span>
                   </div>
@@ -55,21 +76,24 @@ const Navbar: React.FC = () => {
               </>
             )}
 
-            {/* Botón de login/logout */}
-            <li className="nav-item ms-2 d-flex align-items-center">
+            <li className="nav-item d-flex align-items-center">
               {isAuthenticated ? (
                 <button 
                   onClick={logout} 
                   className="btn btn-outline-light btn-sm"
                   aria-label="Cerrar sesión"
-                  title="Cerrar sesión"
                 >
-                  <FontAwesomeIcon icon={faSignOutAlt} /> Salir{/* Icono de logout */}
+                  <FontAwesomeIcon icon={faSignOutAlt} /> Salir
                 </button>
               ) : (
-                <Link to="/login" className="btn btn-outline-light btn-sm" aria-label="Iniciar sesión">
+                <NavLink 
+                  to="/login" 
+                  className={({ isActive }) => 
+                    `btn btn-outline-light ${isActive ? 'active' : ''}`
+                  }
+                >
                   Login
-                </Link>
+                </NavLink>
               )}
             </li>
           </ul>

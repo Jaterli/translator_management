@@ -2,39 +2,179 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0 0 1rem 0;
-  }
-  
-  nav {
-    background-color: #333;
-    color: #fff;
-    padding: 10px;
-  }
-  
-  nav ul {
-    list-style: none;
-    display: flex;
-    gap: 15px;
-  }
-  
-  nav ul li {
-    display: inline;
-  }
-  
-  nav ul li a {
-    color: white;
-    text-decoration: none;
-  }
-  
-  h1, h2, h3 {
-    color: #333;
-  }
+}
 
-  .fs-custom-7{
-    font-size: 0.8rem;
-  }
+/* Estilos para la barra de navegación */
+nav.navbar {
+    background: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%) !important;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+}
 
-  @media (max-width: 768px) { 
-    .fs-custom-sm-7 {
-      font-size: 0.8rem; /* Tamaño de fuente normal */
+.navbar-brand {
+    font-weight: 600;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: translateY(-2px);
+}
+
+.navbar-brand img {
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.05);
+}
+
+.navbar-toggler {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.4rem 0.7rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+.navbar-nav {
+    align-items: center;
+}
+
+.nav-link {
+    color: #ecf0f1 !important;
+    font-weight: 500;
+    padding: 4px 10px !important;
+    margin: 0 5px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Estilo para enlaces activos */
+.nav-link.active {
+    background-color: rgba(52, 152, 219, 0.2) !important;
+}
+
+/* Estilo para hover en enlaces */
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #3498db !important;
+}
+
+/* Efecto de subrayado al hacer hover */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: #3498db;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+
+/* Estilo para el botón de logout */
+.btn-outline-light {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ecf0f1;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 15px;
+    padding: 5px 12px;    
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #3498db;
+    color: #3498db;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Información del usuario */
+.text-info {
+  text-align: center;
+  padding: 3px 10px ;
+  border: 1px solid;
+  border-radius: 5px;
+}
+
+/* Estilos específicos para móviles */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        border-radius: 10px;
+        margin-top: 15px;
+        padding: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
-  }
+    
+    .navbar-nav {
+        padding: 10px 0;
+    }
+    
+    .nav-item {
+        margin: 2px 0;
+        width: 100%;
+    }
+    
+    .nav-link {
+        padding: 12px 15px !important;
+        margin: 5px 0;
+        display: block;
+        text-align: center;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Separación entre enlaces en móviles */
+    .nav-link:not(:last-child) {
+        margin-bottom: 10px;
+    }
+    
+    .nav-link.active {
+        background-color: rgba(52, 152, 219, 0.25) !important;
+        /* box-shadow: 0 0 15px rgba(52, 152, 219, 0.3); */
+    }
+    
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        transform: translateX(5px);
+    }
+    
+    .btn-outline-light {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+    }
+    
+}
+
+/* Estilos para pantallas grandes */
+@media (min-width: 992px) {
+    .navbar-nav {
+        gap: 10px;
+    }
+    
+    .nav-item:last-child{
+      margin-left: 15px;
+    }
+
+}
+
+h1, h2, h3 {
+    color: #333;
+}
+
+.fs-custom-7 {
+    font-size: 0.8rem;
+}
+
+@media (max-width: 768px) { 
+    .fs-custom-sm-7 {
+        font-size: 0.8rem;
+    }
+}
