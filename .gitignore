@@ -4,12 +4,16 @@ node_modules/
 .vscode/
 .idea/
 
-# Python
+# Python / Django
 django-backend/venv/
 django-backend/env/
 django-backend/__pycache__/
-*.pyc
 #db.sqlite3
+# Static and media files (producción)
+/staticfiles/
+/media/
+*.pyc
+
 
 # React
 react-frontend/node_modules/
@@ -19,3 +23,10 @@ react-frontend/.env
 .env
 .env.local
 .env.*.local
+
+# Archivos comprimidos de backup/descarga
+*.zip
+*.tar
+*.gz
+*.7z
+*.rar
