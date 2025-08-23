@@ -9,5 +9,5 @@
 
 #!/bin/bash
 cd ./django-backend && python3 manage.py runserver &
-cd ./react-frontend && npm run dev
+cd ./react-frontend && yarn run dev
 cp .env.development .env
