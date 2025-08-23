@@ -9,8 +9,13 @@ django-backend/venv/
 django-backend/env/
 django-backend/__pycache__/
 *.pyc
-db.sqlite3
+#db.sqlite3
 
 # React
 react-frontend/node_modules/
 react-frontend/.env
+
+# Ignorar archivos locales pero permitir los .env.[mode]
+.env
+.env.local
+.env.*.local
