@@ -140,7 +140,7 @@ const SQLQueryForm: React.FC = () => {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="p-3 p-md-4 bg-light rounded-3">
+    <Form onSubmit={handleSubmit} className="p-3 p-md-4 border rounded-3 bg-body-secondary">
       <h2 className="mb-4 text-center">Crear nueva consulta</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       <Form.Group className="mb-3">

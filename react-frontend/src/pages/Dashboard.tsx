@@ -5,7 +5,7 @@ import LinkButton from '../components/ui/LinkButton';
 const Dashboard: React.FC = () => {
 
   return (
-    <div className="p-3 p-md-5 bg-light rounded-3 text-center">
+    <div className="p-3 p-md-5 border rounded-3 bg-body-secondary text-center">
       <div className="text-center">
         <img 
           src={logo} 

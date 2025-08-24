@@ -178,3 +178,11 @@ h1, h2, h3 {
         font-size: 0.8rem;
     }
 }
+
+[data-bs-theme="dark"] .themed-border {
+  border-color: #495057 !important;
+}
+
+[data-bs-theme="light"] .themed-border {
+  border-color: #dee2e6 !important;
+}
