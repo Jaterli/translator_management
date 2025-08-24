@@ -8,7 +8,7 @@ const Footer = () => {
           className="img-fluid" 
           style={{ width: "80px" }}
         />
-        <p className="mb-0">Aplicación creada por <strong>Jaterli</strong></p>
+        <p className="mb-0">Aplicación creada con ❤️ por <strong className="text-body">Jaterli</strong></p>
         <div className="d-flex justify-content-center gap-3">
           <a 
             href="https://github.com/Jaterli" 
@@ -19,7 +19,7 @@ const Footer = () => {
             <i className="bi bi-github"></i> GitHub
           </a>
           <a 
-            href="https://jaterli.netlify.app" 
+            href="https://jaterli.com" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-decoration-none"

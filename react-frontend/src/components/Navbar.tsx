@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.tsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faSignOutAlt, faBars, faTimes, faSun, faMoon} from '@fortawesome/free-solid-svg-icons';
+import { useTheme } from "../context/ThemeContext.tsx";
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -29,7 +31,7 @@ const Navbar: React.FC = () => {
             height="40" 
             className="d-inline-block align-top"
           />
-          <span className="ms-2">Gestor de consultas</span>
+          <span className="ms-2 fs-5 fs-md-6">Gestor de consultas</span>
         </NavLink>
 
         {/* Botón de toggle */}
@@ -75,6 +77,18 @@ const Navbar: React.FC = () => {
                 </li>
               </>
             )}
+
+            {/* Switch de tema */}
+            <li className="nav-item">
+              <button
+                className="btn btn-outline-light btn-sm ms-2"
+                onClick={toggleTheme}
+                aria-label={`Cambiar a modo ${isDarkMode ? 'claro' : 'oscuro'}`}
+                title={`Cambiar a modo ${isDarkMode ? 'claro' : 'oscuro'}`}
+              >
+                <FontAwesomeIcon icon={isDarkMode ? faSun : faMoon} />
+              </button>
+            </li>
 
             <li className="nav-item d-flex align-items-center">
               {isAuthenticated ? (
