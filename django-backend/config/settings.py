@@ -176,5 +176,5 @@ EMAIL_USE_TLS = True
 # EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 STATICFILES_DIRS = [
-    BASE_DIR / "react-frontend/dist",  # Ruta a los archivos generados por Vite
+    BASE_DIR.parent / "react-frontend/dist",  # Ruta a los archivos generados por Vite
 ]
