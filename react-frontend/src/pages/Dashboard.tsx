@@ -11,11 +11,10 @@ const Dashboard: React.FC = () => {
           src={logo} 
           alt="Logo de Gestor de Consultas" 
           className="img-fluid" 
-          style={{ maxHeight: "200px", width: "auto" }} 
         />
       </div>
       <h1 className="display-5 display-md-4">Gestor de consultas</h1>
-      <p className="lead fs-6 fs-md-4">Administra y guarda tus consultas SQL fácilmente.</p>
+      <h2 className="lead fs-6 fs-md-4">Administra y guarda tus consultas SQL fácilmente.</h2>
       <hr className="my-4" />
 
       <div className="d-flex flex-column flex-md-row gap-2 justify-content-center mt-4">

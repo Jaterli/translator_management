@@ -1,8 +1,8 @@
 import React from 'react';
-import { Translator } from '../../types/Translator';
 import LinkButton from '../ui/LinkButton';
 import { faFileAudio, faFilePdf, faList } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Translator } from '../../types/Types';
 
 interface TranslatorProfileProps {
     translator: Translator;
@@ -13,8 +13,8 @@ const TranslatorProfile: React.FC<TranslatorProfileProps> = ({ translator }) => 
         <><div className="card mb-4 shadow-sm">
             {/* Cabecera de la carta principal */}
             <div className="card-header bg-primary text-white">
-                <h5 className="card-title mb-1">{translator.first_name} {translator.last_name}</h5>
-                <h6 className="card-subtitle mb-0">{translator.email}</h6>
+                <h1 className="card-title fs-3 mb-1">{translator.first_name} {translator.last_name}</h1>
+                <h2 className="card-subtitle fs-5 mb-0">{translator.email}</h2>
             </div>
             <div className="card-body">
 
@@ -113,13 +113,20 @@ const TranslatorProfile: React.FC<TranslatorProfileProps> = ({ translator }) => 
                         <div key={combination.id} className="col-md-6 mb-3">
                             <div className="card h-100">
                                 {/* Cabecera de la carta secundaria */}
-                                <div className="card-header bg-body-secondary px-3 py-2 rounded-top">
-                                    <h6 className="card-subtitle mb-0">
+                                <div className="card-header bg-body-secondary px-3 py-3 rounded-top">
+                                    <h3 className="fs-5 card-subtitle mb-0">
                                         <strong>De:</strong> {combination.source_language} <strong>A:</strong> {combination.target_language}
-                                    </h6>
+                                    </h3>
                                 </div>
                                 <div className="card-body">
-                                    <p className="card-text">
+                                    <ul className='list-group list-group-flush'>
+                                        <li className='list-group-item'><strong>Servicios:</strong> {combination.services}</li>
+                                        <li className='list-group-item'><strong>Tipos de texto:</strong> {combination.text_types}</li>
+                                        <li className='list-group-item'><strong>Precio por palabra:</strong> {combination.price_per_word} €</li>
+                                        <li className='list-group-item'><strong>Precio por palabra jurada:</strong> {combination.sworn_price_per_word + '€' || 'No disponible'}</li>
+                                        <li className='list-group-item'><strong>Precio por hora:</strong> {combination.price_per_hour + '€' || 'No disponible'}</li>   
+                                    </ul>
+                                    {/* <p className="card-text">
                                         <strong>Servicios:</strong> {combination.services}
                                     </p>
                                     <p className="card-text">
@@ -133,7 +140,7 @@ const TranslatorProfile: React.FC<TranslatorProfileProps> = ({ translator }) => 
                                     </p>
                                     <p className="card-text">
                                         <strong>Precio por hora:</strong> {combination.price_per_hour || 'No disponible'} €
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                         </div>
@@ -142,7 +149,7 @@ const TranslatorProfile: React.FC<TranslatorProfileProps> = ({ translator }) => 
             </div>
         </div>
         <div className="text-center">
-            <LinkButton to="/query_results" icon={faList} variant="info" size="lg">
+            <LinkButton to="/query-results" icon={faList} variant="info" size="lg">
                 Volver a resultados
             </LinkButton>
         </div></>

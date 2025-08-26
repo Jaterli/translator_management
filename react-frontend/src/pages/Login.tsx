@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
-import { Button, Form, Container, Card, Alert } from 'react-bootstrap';
+import { Button, Form, Card, Alert } from 'react-bootstrap';
 import logo from '/images/logo-gc.png'; // Importa la misma imagen del logo
 
 const Login = () => {
@@ -34,7 +34,7 @@ const Login = () => {
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center">
+    <section className="d-flex justify-content-center align-items-center">
       <Card className="p-4 shadow" style={{ width: '100%', maxWidth: '400px' }}>
         <div className="text-center mb-4">
           <img
@@ -77,7 +77,7 @@ const Login = () => {
           </div>
         </Form>
       </Card>
-    </Container>
+    </section>
   );
 };
 

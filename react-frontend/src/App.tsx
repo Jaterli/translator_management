@@ -5,7 +5,6 @@ import QueryList from './pages/QueryList.tsx';
 import QueryResults from './pages/QueryResults';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
-import { Container } from 'react-bootstrap';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Footer from "./components/Footer.tsx";
@@ -22,7 +21,7 @@ const App: React.FC = () => {
     <AuthProvider>
       <Router>
         <Navbar />
-        <Container className="mt-5">
+          <div className="container-xxl mt-5">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
@@ -31,8 +30,8 @@ const App: React.FC = () => {
             <Route path="/query-results/:queryId?" element={<PrivateRoute><QueryResults /></PrivateRoute>} />
             <Route path="/translator-detail/:id" element={<PrivateRoute><TranslatorDetail /></PrivateRoute> } />            
           </Routes>
-          <Footer />
-        </Container>
+          </div>
+          <Footer />        
       </Router>
     </AuthProvider>
   );

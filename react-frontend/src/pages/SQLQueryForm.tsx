@@ -5,25 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle, faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom'; // Para redirigir
 import LinkButton from '../components/ui/LinkButton.tsx';
+import { Condition, Field } from '../types/Types.ts';
 
-// Definición de tipos
-interface Field {
-  name: string;
-  model: string;
-  type: string;
-  verbose_name?: string;
-  choices?: [string, string][];
-}
-
-interface Condition {
-  model: string;
-  field: string;
-  operator: string;
-  value: string;
-  logical: string;
-  fieldType: string;
-  choices: [string, string][] | null;
-}
 
 const exclude_fields: Record<string, string[]> = {
   'Translator': ['password', 'is_superuser', 'is_active', 'is_staff', 'groups', 'user_permissions'],
@@ -127,21 +110,26 @@ const SQLQueryForm: React.FC = () => {
     }));
 
     const payload = { name: queryName, query: queryCriteria };
-
+    
+    const result = await saveQuery(payload);
     try {
-      const response = await saveQuery(payload);
-      alert(response.message || '¡Consulta guardada exitosamente!');
-      setError('');
-      navigate('/list-queries'); // Redirigir al listado de consultas
+      if (result.success) {
+        alert(result.message || '¡Consulta guardada exitosamente!');
+        setError('');
+        navigate('/list-queries'); // Redirigir al listado de consultas
+
+      } else {
+        setError(result.error || 'Hubo un error al guardar la consulta. Intenta de nuevo más tarde.');
+      }
     } catch (error) {
-      console.error('Error saving query:', error);
+      console.error('Error:', error);
       setError('Hubo un error al guardar la consulta. Intenta de nuevo más tarde.');
     }
   };
 
   return (
     <Form onSubmit={handleSubmit} className="p-3 p-md-4 border rounded-3 bg-body-secondary">
-      <h2 className="mb-4 text-center">Crear nueva consulta</h2>
+      <h1 className="mb-4 text-center">Nueva consulta</h1>
       {error && <Alert variant="danger">{error}</Alert>}
       <Form.Group className="mb-3">
         <Form.Label>Nombre de la consulta:</Form.Label>
@@ -174,7 +162,7 @@ const SQLQueryForm: React.FC = () => {
             >
               <option value="">Selecciona el campo</option>
               {fields.map((field) => (
-                <option key={field.name} value={field.name}>
+                <option key={`${field.model}-${field.name}`} value={field.name}>
                   {field.verbose_name || field.name}
                 </option>
               ))}
