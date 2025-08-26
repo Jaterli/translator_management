@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-iz$auv8am=x!4-%w**8bkn6&5!2bk1sef)0*5muh-mqy&^3+43
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['translator-management.jaterli.com', 'www.translator-management.jaterli.com', 'localhost']
 
 
 # Application definition
@@ -178,3 +178,5 @@ EMAIL_USE_TLS = True
 STATICFILES_DIRS = [
     BASE_DIR.parent / "react-frontend/dist",  # Ruta a los archivos generados por Vite
 ]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
