@@ -1,39 +1,9 @@
+import { ApiResponse, AuthResponse, Field, Query, QueryCondition, ResultRow, Translator } from '../types/Types';
 import instance from './axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 
-// Definición de tipos e interfaces
-interface Field {
-  name: string;
-  model: string;
-  type: string;
-  verbose_name?: string;
-  choices?: [string, string][];
-}
-
-interface Query {
-  id: number;
-  name: string;
-  query: any; // Define el tipo correcto según la estructura de tu query
-}
-
-interface ApiResponse<T> {
-  queries: never[];
-  data: T;
-  message?: string;
-  status?: number;
-}
-
-// Tipo para la respuesta de autenticación
-interface AuthResponse {
-  access_token: string; // Token JWT
-  refresh_token?: string; // Token de refresco (opcional)
-  user: { // Información de usuario
-    name: string;
-    email: string;
-  };  
-}
 
 // Obtener campos
 export async function getModelFields(): Promise<{ fields: Field[] }> {
@@ -41,12 +11,46 @@ export async function getModelFields(): Promise<{ fields: Field[] }> {
   return response.data;
 }
 
+// Guardar consulta - MODIFICADA para manejar errores
+export async function saveQuery(data: { name: string; query: QueryCondition[] }): Promise<ApiResponse<{ id: string }>> {
+  try {
+    const response = await instance.post('/save-query/', data);
+    
+    return {
+      success: true,
+      data: { id: response.data.id },
+      message: response.data.message,
+    };
 
-// Guardar consulta
-export async function saveQuery(data: { name: string; query: any }): Promise<ApiResponse<Query>> {
-  const response = await instance.post('/save-query/', data);
-  return response.data;
+  // } catch (error: any) {
+  //   const errorMessage = error.response?.data?.error || 'Error al guardar la consulta';
+    
+  //   return {
+  //     success: false,
+  //     error: errorMessage, // ← Aquí está el mensaje específico
+  //   };
+  // }
+
+  } catch (err) {
+    let errorMessage = "Error desconocido al guardar la consulta.";
+    
+    if (err instanceof Error) {
+      // Verificamos si es un error de axios con respuesta del servidor
+      const axiosError = err as unknown as { response?: { data?: { error?: string } } };
+      
+      if (axiosError.response?.data?.error) {
+        errorMessage = axiosError.response.data.error;
+      } else {
+        errorMessage = err.message;
+      }
+    }    
+    return {
+      success: false,
+      error: errorMessage, // ← Aquí está el mensaje específico
+    };
+  }
 }
+
 
 // Obtener listado de consultas
 export async function getQueries(): Promise<ApiResponse<Query[]>> {
@@ -55,13 +59,15 @@ export async function getQueries(): Promise<ApiResponse<Query[]>> {
 }
 
 // Eliminar consulta
-export async function deleteQuery(queryId: number): Promise<ApiResponse<{ id: number }>> {
+export async function deleteQuery(queryId: string): Promise<ApiResponse<{ id: string }>> {
   const response = await instance.delete(`/delete-query/${queryId}/`);
   return response.data;
 }
 
 // Ejecutar consulta
-export async function executeQuery(queryId: string): Promise<ApiResponse<any>> {
+export async function executeQuery(queryId: string): Promise<{
+  query: string; results: ResultRow[] 
+}> {
   const response = await instance.get(`/execute-query/${queryId}/`);
   return response.data;
 }
@@ -75,17 +81,17 @@ export async function login(username: string, password: string): Promise<AuthRes
 import axios from 'axios';
 
 // Vista detalle de traductor
-export async function getTranslatorDetail(id: string) {
+export async function getTranslatorDetail(id: string): Promise<Translator> {
   const token = localStorage.getItem('access_token');
   if (!token) {
-      throw new Error('No estás autenticado. Por favor, inicia sesión.');
+    throw new Error('No estás autenticado. Por favor, inicia sesión.');
   }
 
   const response = await axios.get(`${API_BASE_URL}/translator-detail/${id}/`, {
-      headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-      },
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
   });
 
   return response.data;

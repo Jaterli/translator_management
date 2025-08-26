@@ -1,26 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { getQueries, deleteQuery } from '../services/api';
 import { Link } from 'react-router-dom';
-import { Table, Button, Alert, Container } from 'react-bootstrap';
+import { Table, Button, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEye, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import LinkButton from '../components/ui/LinkButton';
+import { Query, QueryCondition } from '../types/Types';
 
 // Definición de tipos
-interface QueryCondition {
-  logical: string | null;
-  model: string;
-  field: string;
-  operator: string;
-  value: string;
-}
-
-interface Query {
-  id: number;
-  name: string;
-  query: QueryCondition[];
-  created_at: string;
-}
 
 const QueryList: React.FC = () => {
   const [queries, setQueries] = useState<Query[]>([]);
@@ -33,7 +20,7 @@ const QueryList: React.FC = () => {
     fetchQueries();
   }, []);
 
-  const handleDelete = async (queryId: number) => {
+  const handleDelete = async (queryId: string) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar esta consulta?")) {
       const response = await deleteQuery(queryId);
       alert(response.message || 'Consulta eliminada!');
@@ -54,8 +41,8 @@ const QueryList: React.FC = () => {
   };
 
   return (
-    <Container className="mt-4">
-      <h2 className="mb-4 text-center">Consultas guardadas</h2>
+    <section className="mt-4">
+      <h1 className="mb-4 text-center">Consultas guardadas</h1>
       {queries.length === 0 ? (
         <Alert variant="info">No hay consultas guardadas.</Alert>
       ) : (
@@ -79,8 +66,8 @@ const QueryList: React.FC = () => {
                   <td>
                     {new Date(query.created_at).toLocaleDateString('es-ES', {
                       year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
                     })}
                   </td>
                   <td>
@@ -89,14 +76,14 @@ const QueryList: React.FC = () => {
                         to={`/query-results/${query.id}`}
                         className="btn btn-sm btn-primary"
                       >
-                        <FontAwesomeIcon icon={faEye} /> Ejecutar
+                        <FontAwesomeIcon icon={faEye} /> <span className='d-none d-lg-inline-flex'>Ejecutar</span>
                       </Link>
                       <Button
                         variant="danger"
                         size="sm"
                         onClick={() => handleDelete(query.id)}
                       >
-                        <FontAwesomeIcon icon={faTrash} /> Eliminar
+                        <FontAwesomeIcon icon={faTrash} /> <span className='d-none d-lg-inline-flex'>Eliminar</span>
                       </Button>
                     </div>
                   </td>
@@ -114,7 +101,7 @@ const QueryList: React.FC = () => {
       </LinkButton>
 
       </div>
-    </Container>
+    </section>
   );
 };
 

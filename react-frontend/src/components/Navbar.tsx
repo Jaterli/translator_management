@@ -15,8 +15,8 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div className="container">
+    <nav className="navbar navbar-expand-lg">
+      <div className="container-xxl">
         {/* Logo y texto */}
         <NavLink 
           className={({ isActive }) => 
@@ -31,7 +31,7 @@ const Navbar: React.FC = () => {
             height="40" 
             className="d-inline-block align-top"
           />
-          <span className="ms-2 fs-5 fs-md-6">Gestor de consultas</span>
+          <span className="ms-2 navbar-title">Gestor de consultas</span>
         </NavLink>
 
         {/* Botón de toggle */}
@@ -79,9 +79,9 @@ const Navbar: React.FC = () => {
             )}
 
             {/* Switch de tema */}
-            <li className="nav-item">
+            <li>
               <button
-                className="btn btn-outline-light btn-sm ms-2"
+                className="btn btn-outline btn-sm ms-2"
                 onClick={toggleTheme}
                 aria-label={`Cambiar a modo ${isDarkMode ? 'claro' : 'oscuro'}`}
                 title={`Cambiar a modo ${isDarkMode ? 'claro' : 'oscuro'}`}
@@ -90,11 +90,11 @@ const Navbar: React.FC = () => {
               </button>
             </li>
 
-            <li className="nav-item d-flex align-items-center">
+            <li className="d-flex align-items-center">
               {isAuthenticated ? (
                 <button 
                   onClick={logout} 
-                  className="btn btn-outline-light btn-sm"
+                  className="btn btn-outline btn-sm"
                   aria-label="Cerrar sesión"
                 >
                   <FontAwesomeIcon icon={faSignOutAlt} /> Salir

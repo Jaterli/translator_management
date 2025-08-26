@@ -1,7 +1,7 @@
 const Footer = () => {
   return (
     <footer className="py-4">
-      <div className="container text-center mt-4">
+      <div className="container-xxl text-center mt-4">
         <img 
           src="/images/Logo-jtl.png" 
           alt="Logotipo de Jaterli" 
@@ -27,7 +27,7 @@ const Footer = () => {
             <i className="bi bi-globe"></i> Blog Personal
           </a>
         </div>
-        <p className="mt-3 text-muted" style={{ fontSize: "0.9rem" }}>
+        <p className="text-muted" style={{ fontSize: "0.9rem" }}>
           &copy; {new Date().getFullYear()} Jaterli. Todos los derechos reservados.
         </p>
       </div>

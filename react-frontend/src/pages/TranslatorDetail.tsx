@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import TranslatorProfile from '../components/translators/TranslatorDetail';
-import { Translator } from '../types/Translator';
 import { getTranslatorDetail } from '../services/api';
+import { Translator } from '../types/Types';
+import TranslatorProfile from '../components/translators/TranslatorData';
 
 const TranslatorDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -45,7 +45,7 @@ const TranslatorDetail: React.FC = () => {
     }
 
     return (
-        <div className="container mt-4">
+        <div className="mt-4">
             <TranslatorProfile translator={translator} />
         </div>
     );

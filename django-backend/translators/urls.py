@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TranslatorRegisterView, TranslatorLoginView, TranslatorUpdateView, CombinationCreateView, CombinationUpdateView, CombinationDeleteView, ProfessionalProfileUpdateView, LanguageCombinationListView, ProfessionalProfileDetailView, TranslatorAccountDeleteView, FilesView, TranslatorDetailViewForAdmin
+from .views import TranslatorRegisterView, TranslatorLoginView, TranslatorUpdateView, CombinationCreateView, CombinationUpdateView, CombinationDeleteView, ProfessionalProfileUpdateView, LanguageCombinationListView, ProfessionalProfileDetailView, TranslatorAccountDeleteView, FilesView
 from . import views
 
 
@@ -16,11 +16,10 @@ urlpatterns = [
     path('personal-data/', views.personal_data, name='personal_data'),
     path('professional-profile/', ProfessionalProfileDetailView.as_view(), name='professional_profile'),    
     path('professional-profile/edit/', ProfessionalProfileUpdateView.as_view(), name='professional_profile_edit'),
-    path('language_combinations/', LanguageCombinationListView.as_view(), name='language_combinations'),
+    path('language-combinations/', LanguageCombinationListView.as_view(), name='language_combinations'),
     path('files/', FilesView.as_view(), name='files'),  
     path('files/delete-cv/', views.delete_cv, name='delete_cv'),
     path('files/delete-voice-note/', views.delete_voice_note, name='delete_voice_note'),      
     path('change_pw/', views.change_password, name='change_pw'),
     path('translator/account-delete/', TranslatorAccountDeleteView.as_view(), name='translator_account_delete'),
-    path('api/translator-detail/<int:id>/', TranslatorDetailViewForAdmin.as_view(), name='translator_detail'),
 ]

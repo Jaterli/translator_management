@@ -5,13 +5,16 @@ from translators.models import Translator, ProfessionalProfile, LanguageCombinat
 from django.db.models import Q
 from django.db import models
 from django.contrib.auth import authenticate
+from django.db import IntegrityError
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAdminUser
-
+from rest_framework import generics
+from translators.serializers import TranslatorSerializer
+from translators.permissions import IsStaffPermission
 
 class GetModelFieldsView(APIView):
     permission_classes = [IsAdminUser]  # Solo administradores pueden acceder
@@ -39,27 +42,54 @@ class GetModelFieldsView(APIView):
 
 
 class SaveQueryView(APIView):
-    # Guardar la consulta SQL generada
-    permission_classes = [IsAdminUser]  # Solo administradores pueden guardar consultas
+    permission_classes = [IsAdminUser]
 
     def post(self, request):
-        data = request.data  # DRF maneja automáticamente JSON
-        name = data.get("name")
-        query = data.get("query")  # JSON con los filtros
+        try:
+            data = request.data
+            name = data.get("name")
+            query = data.get("query")
 
-        if not name or not query:
-            return Response({"error": "El nombre y la consulta son obligatorios."}, status=status.HTTP_400_BAD_REQUEST)
+            if not name:
+                return Response(
+                    {"success": False, "error": "El nombre es obligatorio."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        # Guardar la consulta
-        saved_query = SavedQuery.objects.create(name=name, query=query)
-        return Response({"message": "Consulta guardada", "id": saved_query.id}, status=status.HTTP_201_CREATED)
+            if not query:
+                return Response(
+                    {"success": False, "error": "La consulta es obligatoria."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
+            # Guardar la consulta
+            saved_query = SavedQuery.objects.create(name=name, query=query)
+            return Response({
+                "success": True, 
+                "message": "Consulta guardada", 
+                "data": {
+                    "id": saved_query.id,
+                    "name": saved_query.name
+                }
+            }, status=status.HTTP_201_CREATED)
 
+        except IntegrityError:
+            return Response(
+                {"success": False, "error": "Ya existe una consulta con este nombre. Por favor, elige otro nombre."},
+                status=status.HTTP_409_CONFLICT
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "error": f"Error interno del servidor: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        
 class ListQueriesView(APIView):
     permission_classes = [IsAdminUser]  # Solo permite usuarios con is_staff=True
 
     def get(self, request):
-        queries = SavedQuery.objects.values("id", "name", "created_at", "query")
+        queries = SavedQuery.objects.values("id", "name", "created_at", "query").order_by('-created_at')
         return Response({"queries": list(queries)})
 
 
@@ -204,3 +234,13 @@ class StaffLoginView(APIView):
             }, status=status.HTTP_200_OK)
         else:
             return Response({'error #2': 'Credenciales inválidas o usuario no autorizado'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+
+class TranslatorDetailViewForAdmin(generics.RetrieveAPIView):
+    """
+    Para el frontend de React.
+    """
+    queryset = Translator.objects.all()
+    serializer_class = TranslatorSerializer
+    permission_classes = [IsStaffPermission]  # Solo usuarios autenticados y con is_staff=True
+    lookup_field = 'id'

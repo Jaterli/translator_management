@@ -18,10 +18,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from rest_framework import generics
-from .permissions import IsStaffPermission
-from .serializers import TranslatorSerializer
-
 
 @receiver(post_save, sender=Translator)
 # La señal post_save asegura que cada vez que se crea un Translator, también se cree automáticamente su ProfessionalProfile
@@ -81,20 +77,6 @@ class TranslatorUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self):
         return self.request.user
-
-
-# class TranslatorDetailView(LoginRequiredMixin, DetailView):
-#     model = Translator
-#     template_name = 'translators/personal-data.html'
-#     context_object_name = 'translator'
-
-#     def get_object(self):
-#         return self.request.user
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['combinations'] = LanguageCombinationForm.objects.filter(translator=self.object)
-#         return context
 
 
 class ProfessionalProfileDetailView(LoginRequiredMixin, DetailView):
@@ -202,7 +184,7 @@ class CombinationCreateView(CreateView):
     model = LanguageCombination
     form_class = LanguageCombinationForm
     template_name = 'translators/language-combinations-edit.html'
-    success_url = reverse_lazy('language_combinations')
+    success_url = reverse_lazy('language-combinations')
 
     def form_valid(self, form):
         form.instance.translator = self.request.user
@@ -213,7 +195,7 @@ class CombinationUpdateView(UserPassesTestMixin, UpdateView):
     model = LanguageCombination
     form_class = LanguageCombinationForm
     template_name = 'translators/language-combinations-edit.html'
-    success_url = reverse_lazy('language_combinations')
+    success_url = reverse_lazy('language-combinations')
 
     def test_func(self):
         combination = self.get_object()
@@ -227,7 +209,7 @@ class CombinationUpdateView(UserPassesTestMixin, UpdateView):
 class CombinationDeleteView(LoginRequiredMixin, DeleteView):
     model = LanguageCombination
     template_name = 'translators/combination-confirm_delete.html'
-    success_url = reverse_lazy('language_combinations')
+    success_url = reverse_lazy('language-combinations')
 
 
 class LanguageCombinationListView(LoginRequiredMixin, ListView):
@@ -288,13 +270,3 @@ def change_password(request):
     else:
         form = PasswordChangeForm(user=request.user)
     return render(request, 'translators/change-password.html', {'form': form})
-
-
-class TranslatorDetailViewForAdmin(generics.RetrieveAPIView):
-    """
-    Para el frontend de React.
-    """
-    queryset = Translator.objects.all()
-    serializer_class = TranslatorSerializer
-    permission_classes = [IsStaffPermission]  # Solo usuarios autenticados y con is_staff=True
-    lookup_field = 'id'

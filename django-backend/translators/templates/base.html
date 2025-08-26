@@ -67,10 +67,10 @@
                     {% else %}
                         <!-- Enlaces para usuarios no autenticados -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a>
+                            <a class="nav-link {% if request.path == '/translators/login/' %}active{% endif %}" href="{% url 'login' %}">Iniciar sesión</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
+                            <a class="nav-link {% if request.path == '/translators/register/' %}active{% endif %}" href="{% url 'register' %}">Registrarse</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -80,24 +80,22 @@
 
     <!-- Contenido principal -->
     <div class="container mt-4 mb-4">
-        <div class="container mt-5">
-            <h1 class="mb-5 text-center text-primary">{% block pagetitle %}{% endblock %}</h1>
+        <h1 class="mb-5 text-center text-primary">{% block pagetitle %}{% endblock %}</h1>
 
-            <!-- Mensajes de alerta -->
-            {% if messages %}
-                <div>
-                    {% for message in messages %}
-                        <div class="text-center alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        <!-- Mensajes de alerta -->
+        {% if messages %}
+            <div>
+                {% for message in messages %}
+                    <div class="text-center alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-            <!-- Bloque de contenido -->
-            {% block content %}
-            {% endblock %}
-        </div>
+        <!-- Bloque de contenido -->
+        {% block content %}
+        {% endblock %}
     </div>
 
     <!-- Bootstrap JS -->
