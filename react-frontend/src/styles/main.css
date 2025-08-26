@@ -103,7 +103,7 @@ nav.navbar {
 /* Estilos específicos para pantallas muy pequeñas */
 @media (max-width: 380px) {
     .navbar-title{
-      font-size: small;
+      font-size: 1.1rem;
     }
 }
 
@@ -141,11 +141,6 @@ nav.navbar {
         margin-bottom: 10px;
     }
     
-    
-    .navbar-title{
-      font-size: normal;
-    }
-
     .btn-outline-light {
         width: 100%;
         padding: 10px;
