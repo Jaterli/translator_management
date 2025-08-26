@@ -100,6 +100,14 @@ nav.navbar {
   border-radius: 5px;
 }
 
+/* Estilos específicos para pantallas muy pequeñas */
+@media (max-width: 380px) {
+    .navbar-title{
+      font-size: small;
+    }
+}
+
+
 /* Estilos específicos para móviles */
 @media (max-width: 991.98px) {
     .navbar-collapse {
