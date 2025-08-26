@@ -184,7 +184,7 @@ class CombinationCreateView(CreateView):
     model = LanguageCombination
     form_class = LanguageCombinationForm
     template_name = 'translators/language-combinations-edit.html'
-    success_url = reverse_lazy('language-combinations')
+    success_url = reverse_lazy('language_combinations')
 
     def form_valid(self, form):
         form.instance.translator = self.request.user
@@ -195,7 +195,7 @@ class CombinationUpdateView(UserPassesTestMixin, UpdateView):
     model = LanguageCombination
     form_class = LanguageCombinationForm
     template_name = 'translators/language-combinations-edit.html'
-    success_url = reverse_lazy('language-combinations')
+    success_url = reverse_lazy('language_combinations')
 
     def test_func(self):
         combination = self.get_object()
