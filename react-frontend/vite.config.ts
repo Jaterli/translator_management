@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     // proxy: {
-    //   '/api': 'http://localhost:8000', // Proxy hacia tu backend Django
+    //   '/api': 'http://localhost:8000', // Proxy hacia el backend Django
     // },
     port: 5173,
     strictPort: true,
