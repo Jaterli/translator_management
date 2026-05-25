@@ -21,7 +21,7 @@ El proyecto se divide en dos áreas principales:
 
 ```
 /translator_management         # Carpeta raíz del proyecto
-  /django-backend              # Backend desarrollado con Django
+  /backend                     # Backend desarrollado con Django
     /config                    # Configuración principal del proyecto Django
       /settings.py             # Archivo de configuración
       /urls.py                 # URLs principales
@@ -37,7 +37,7 @@ El proyecto se divide en dos áreas principales:
       /models                  # Modelos de almacenamiento de consultas
       /...
     /manage.py                 # Script de gestión de Django
-  /react-frontend              # Frontend React para administración de consultas
+  /frontend                    # Frontend React para administración de consultas
     /src                       # Código fuente de React
       /components              # Componentes de React
       /pages                   # Páginas de React
@@ -112,11 +112,11 @@ El proyecto se divide en dos áreas principales:
 3. Instala las dependencias de Django:
 
    ```bash
-   cd django-backend
+   cd backend
    pip install -r requirements.txt
    ```
 
-4. Configura la base de datos y las variables de entorno en `django-backend/config/settings.py`.
+4. Configura la base de datos y las variables de entorno en `backend/config/settings.py`.
 
 5. Aplica las migraciones:
 
@@ -133,7 +133,7 @@ El proyecto se divide en dos áreas principales:
 7. Configura el frontend de React:
 
    ```bash
-   cd ../react-frontend
+   cd ../frontend
    npm install
    ```
 

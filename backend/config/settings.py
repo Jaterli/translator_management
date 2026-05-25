@@ -148,6 +148,10 @@ USE_TZ = True
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    BASE_DIR.parent / "frontend/dist",  # Ruta a los archivos generados por Vite
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -175,8 +179,3 @@ EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 # EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
-STATICFILES_DIRS = [
-    BASE_DIR.parent / "react-frontend/dist",  # Ruta a los archivos generados por Vite
-]
-
-STATIC_ROOT = BASE_DIR / "staticfiles"
