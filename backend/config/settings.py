@@ -25,8 +25,13 @@ SECRET_KEY = 'django-insecure-iz$auv8am=x!4-%w**8bkn6&5!2bk1sef)0*5muh-mqy&^3+43
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['translator-management.jaterli.com', 'www.translator-management.jaterli.com', 'localhost']
-
+ALLOWED_HOSTS = [
+    'translator-management.jaterli.com', 
+    'www.translator-management.jaterli.com', 
+    'localhost',
+    'translator_backend', 
+    '127.0.0.1',
+]
 
 # Application definition
 
@@ -62,6 +67,7 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -69,14 +75,24 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 CORS_ALLOWED_ORIGINS = [
-     "http://localhost:3000",  # React en desarrollo
-     "http://127.0.0.1:3000",  # Alternativa local
-     "http://localhost:5173",  # Vite (React)
+    "https://translator-management.jaterli.com",
+    "http://translator-management.jaterli.com",
+    "https://www.translator-management.jaterli.com",    
+    "http://localhost:3000",  # React en desarrollo
+    "http://127.0.0.1:3000",  # Alternativa local
+    "http://localhost:5173",  # Vite (React)
 ]
+
+CSRF_TRUSTED_ORIGINS = [ 
+    'https://translator-management.jaterli.com',
+    'https://www.translator-management.jaterli.com',
+]
+
+# Opcional: Permitir credenciales (cookies)
+CORS_ALLOW_CREDENTIALS = True
 
 # Alternativa más abierta para desarrollo
 # CORS_ALLOW_ALL_ORIGINS = True  # Permitir todos los orígenes (¡Usar solo en desarrollo!)
