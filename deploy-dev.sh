@@ -8,6 +8,6 @@
 
 
 #!/bin/bash
-cd ./django-backend && python3 manage.py runserver &
-cd ./react-frontend && yarn run dev
+cd ./backend && python3 manage.py runserver &
+cd ./frontend && yarn run dev
 cp .env.development .env

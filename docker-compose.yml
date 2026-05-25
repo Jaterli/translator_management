@@ -1,0 +1,50 @@
+services:
+  # Servicio de Django
+  backend:
+    build: 
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - app_network
+
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - app_network
+
+  # Nginx (servirá React y hará proxy)
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"  # Si usas HTTPS más adelante
+    depends_on:
+      - backend
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    networks:
+      - app_network
+
+volumes:
+  static_volume:
+  media_volume:
+  postgres_data:
+
+networks:
+  app_network:
+    driver: bridge

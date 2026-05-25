@@ -7,14 +7,14 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Obtener campos
 export async function getModelFields(): Promise<{ fields: Field[] }> {
-  const response = await instance.get('/get-fields/');
+  const response = await instance.get(`${API_BASE_URL}/get-fields/`);
   return response.data;
 }
 
 // Guardar consulta - MODIFICADA para manejar errores
 export async function saveQuery(data: { name: string; query: QueryCondition[] }): Promise<ApiResponse<{ id: string }>> {
   try {
-    const response = await instance.post('/save-query/', data);
+    const response = await instance.post(`${API_BASE_URL}/save-query/`, data);
     
     return {
       success: true,
@@ -54,13 +54,13 @@ export async function saveQuery(data: { name: string; query: QueryCondition[] })
 
 // Obtener listado de consultas
 export async function getQueries(): Promise<ApiResponse<Query[]>> {
-  const response = await instance.get('/list-queries/');
+  const response = await instance.get(`${API_BASE_URL}/list-queries/`);
   return response.data;
 }
 
 // Eliminar consulta
 export async function deleteQuery(queryId: string): Promise<ApiResponse<{ id: string }>> {
-  const response = await instance.delete(`/delete-query/${queryId}/`);
+  const response = await instance.delete(`${API_BASE_URL}/delete-query/${queryId}/`);
   return response.data;
 }
 
@@ -68,7 +68,7 @@ export async function deleteQuery(queryId: string): Promise<ApiResponse<{ id: st
 export async function executeQuery(queryId: string): Promise<{
   query: string; results: ResultRow[] 
 }> {
-  const response = await instance.get(`/execute-query/${queryId}/`);
+  const response = await instance.get(`${API_BASE_URL}/execute-query/${queryId}/`);
   return response.data;
 }
 

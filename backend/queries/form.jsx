@@ -24,7 +24,7 @@ const QueryBuilder = () => {
             table: selectedTable,
             fields: selectedFields,
         };
-        axios.post('/api/queries/', query).then(response => {
+        axios.post('/api/', query).then(response => {
             alert('Consulta guardada exitosamente!');
         });
     };

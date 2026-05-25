@@ -5,9 +5,9 @@ node_modules/
 .idea/
 
 # Python / Django
-django-backend/venv/
-django-backend/env/
-django-backend/__pycache__/
+backend/venv/
+backend/env/
+backend/__pycache__/
 #db.sqlite3
 # Static and media files (producción)
 /staticfiles/
@@ -16,8 +16,8 @@ django-backend/__pycache__/
 
 
 # React
-react-frontend/node_modules/
-react-frontend/.env
+frontend/node_modules/
+frontend/.env
 
 # Ignorar archivos locales pero permitir los .env.[mode]
 .env
