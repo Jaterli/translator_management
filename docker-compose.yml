@@ -1,5 +1,5 @@
 services:
-  # Servicio de Django (backend + frontend)
+  # Backend Django API
   backend:
     build: 
       context: .
@@ -16,15 +16,21 @@ services:
     networks:
       - web_network
     expose:
-      - "8000"  # Solo interno
-    # Healthcheck opcional
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - "8000"
 
-  # Base de datos PostgreSQL
+  # Frontend React
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    container_name: translator_frontend
+    restart: always
+    networks:
+      - web_network
+    expose:
+      - "80"
+
+  # Base de datos
   db:
     image: postgres:15
     container_name: translator_db
@@ -50,4 +56,4 @@ volumes:
 
 networks:
   web_network:
-    external: true  # Red compartida
+    external: true
