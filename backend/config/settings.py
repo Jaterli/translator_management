@@ -93,8 +93,8 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Configuración SSL
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = None
 SECURE_SSL_REDIRECT = False  # El reverse proxy maneja la redirección
 
 # Opcional: Permitir credenciales (cookies)
