@@ -12,7 +12,10 @@ services:
     depends_on:
       - db
     networks:
-      - app_network
+      - web_network  # Cambiado: usar red compartida
+    expose:
+      - "8000"  # Solo interno, no exponer al host
+    # Eliminar ports: ya no es necesario
 
   # Base de datos PostgreSQL
   db:
@@ -22,23 +25,11 @@ services:
     env_file:
       - .env
     networks:
-      - app_network
+      - web_network  # Cambiado: usar red compartida
+    # No exponer puertos
 
-  # Nginx (servirá React y hará proxy)
-  nginx:
-    build:
-      context: .
-      dockerfile: docker/nginx/Dockerfile
-    ports:
-      - "3000:80" 
-      - "3001:443" 
-    depends_on:
-      - backend
-    volumes:
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
-    networks:
-      - app_network
+  # NOTA: El servicio nginx se ELIMINA
+  # El reverse proxy principal manejará el routing
 
 volumes:
   static_volume:
@@ -46,5 +37,5 @@ volumes:
   postgres_data:
 
 networks:
-  app_network:
-    driver: bridge
+  web_network:
+    external: true  # Usar la red compartida existente
