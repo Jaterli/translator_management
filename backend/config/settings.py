@@ -67,6 +67,7 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -74,14 +75,24 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 CORS_ALLOWED_ORIGINS = [
-     "http://localhost:3000",  # React en desarrollo
-     "http://127.0.0.1:3000",  # Alternativa local
-     "http://localhost:5173",  # Vite (React)
+    "https://translator-management.jaterli.com",
+    "http://translator-management.jaterli.com",
+    "https://www.translator-management.jaterli.com",    
+    "http://localhost:3000",  # React en desarrollo
+    "http://127.0.0.1:3000",  # Alternativa local
+    "http://localhost:5173",  # Vite (React)
 ]
+
+CSRF_TRUSTED_ORIGINS = [ 
+    'https://translator-management.jaterli.com',
+    'https://www.translator-management.jaterli.com',
+]
+
+# Opcional: Permitir credenciales (cookies)
+CORS_ALLOW_CREDENTIALS = True
 
 # Alternativa más abierta para desarrollo
 # CORS_ALLOW_ALL_ORIGINS = True  # Permitir todos los orígenes (¡Usar solo en desarrollo!)
