@@ -25,8 +25,13 @@ SECRET_KEY = 'django-insecure-iz$auv8am=x!4-%w**8bkn6&5!2bk1sef)0*5muh-mqy&^3+43
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['translator-management.jaterli.com', 'www.translator-management.jaterli.com', 'localhost']
-
+ALLOWED_HOSTS = [
+    'translator-management.jaterli.com', 
+    'www.translator-management.jaterli.com', 
+    'localhost',
+    'translator_backend', 
+    '127.0.0.1',
+]
 
 # Application definition
 
