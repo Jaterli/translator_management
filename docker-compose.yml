@@ -1,9 +1,11 @@
 services:
-  # Servicio de Django
+  # Servicio de Django (backend + frontend)
   backend:
     build: 
       context: .
       dockerfile: docker/backend/Dockerfile
+    container_name: translator_backend
+    restart: always
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
@@ -12,24 +14,34 @@ services:
     depends_on:
       - db
     networks:
-      - web_network  # Cambiado: usar red compartida
+      - web_network
     expose:
-      - "8000"  # Solo interno, no exponer al host
-    # Eliminar ports: ya no es necesario
+      - "8000"  # Solo interno
+    # Healthcheck opcional
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Base de datos PostgreSQL
   db:
     image: postgres:15
+    container_name: translator_db
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
     networks:
-      - web_network  # Cambiado: usar red compartida
-    # No exponer puertos
-
-  # NOTA: El servicio nginx se ELIMINA
-  # El reverse proxy principal manejará el routing
+      - web_network
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   static_volume:
@@ -38,4 +50,4 @@ volumes:
 
 networks:
   web_network:
-    external: true  # Usar la red compartida existente
+    external: true  # Red compartida
