@@ -25,14 +25,6 @@ SECRET_KEY = 'django-insecure-iz$auv8am=x!4-%w**8bkn6&5!2bk1sef)0*5muh-mqy&^3+43
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'translator-management.jaterli.com', 
-    'www.translator-management.jaterli.com', 
-    'localhost',
-    'translator_backend', 
-    '127.0.0.1',
-]
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -77,6 +69,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+ALLOWED_HOSTS = [
+    'translator-management.jaterli.com', 
+    'www.translator-management.jaterli.com', 
+    'localhost',
+    'translator_backend', 
+    '127.0.0.1',
+]
+
 CORS_ALLOWED_ORIGINS = [
     "https://translator-management.jaterli.com",
     "http://translator-management.jaterli.com",
@@ -90,6 +90,12 @@ CSRF_TRUSTED_ORIGINS = [
     'https://translator-management.jaterli.com',
     'https://www.translator-management.jaterli.com',
 ]
+
+# Configuración SSL
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = False  # El reverse proxy maneja la redirección
 
 # Opcional: Permitir credenciales (cookies)
 CORS_ALLOW_CREDENTIALS = True
