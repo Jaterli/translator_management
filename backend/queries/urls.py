@@ -11,5 +11,11 @@ urlpatterns = [
     path('auth/login/', views.StaffLoginView.as_view(), name='staff_login'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Endpoint para refrescar token    
     path('translator-detail/<int:id>/', views.TranslatorDetailViewForAdmin.as_view(), name='translator_detail'),
-
+    # Endpoints para homologación de combinaciones de idiomas
+    path('approve-combination/', views.ApproveLanguageCombinationView.as_view(), name='approve_combination'),
+    path('disapprove-combination/<int:approval_id>/', views.DisapproveLanguageCombinationView.as_view(), name='disapprove_combination'),
+    path('approved-combinations/', views.ListApprovedCombinationsView.as_view(), name='approved_combinations'),
+    path('available-languages/', views.AvailableLanguagesView.as_view(), name='available_languages'),
+    # Endpoint para estadísticas del dashboard
+    path('dashboard-stats/', views.DashboardStatsView.as_view(), name='dashboard_stats'),    
 ]

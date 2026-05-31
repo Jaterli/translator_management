@@ -95,6 +95,42 @@ class LanguageCombination(models.Model):
         return ", ".join([service.strip() for service in services_list])
     
 
+class LanguageCombinationApproval(models.Model):
+    """
+    Modelo para gestionar la homologación de combinaciones de idiomas por parte de superusuarios
+    """
+    superuser = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='approved_by_me', 
+        limit_choices_to={'is_superuser': True},
+        verbose_name='Superusuario que homologa'
+    )
+    translator = models.ForeignKey(
+        Translator, 
+        on_delete=models.CASCADE, 
+        related_name='approved_combinations',  # Este se mantiene
+        verbose_name='Traductor'
+    )
+    language_combination = models.ForeignKey(
+        LanguageCombination, 
+        on_delete=models.CASCADE, 
+        related_name='approvals',
+        verbose_name='Combinación de idiomas'
+    )
+    approved_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de homologación')
+    is_approved = models.BooleanField(default=True, verbose_name='Homologado')
+    notes = models.TextField(blank=True, verbose_name='Notas adicionales')
+
+    class Meta:
+        unique_together = ['superuser', 'translator', 'language_combination']
+        ordering = ['-approved_at']
+        verbose_name = 'Homologación de combinación'
+        verbose_name_plural = 'Homologaciones de combinaciones'
+
+    def __str__(self):
+        return f"{self.superuser.email} homologó {self.language_combination} para {self.translator.email}"
+    
 
 def cv_upload_path(instance, filename):
     """

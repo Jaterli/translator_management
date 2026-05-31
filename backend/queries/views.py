@@ -1,11 +1,13 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from queries.models import SavedQuery
-from translators.models import Translator, ProfessionalProfile, LanguageCombination
-from django.db.models import Q
+from translators.models import Translator, ProfessionalProfile, LanguageCombination, LanguageCombinationApproval
+from django.db.models import Q, Count
 from django.db import models
 from django.contrib.auth import authenticate
 from django.db import IntegrityError
+from django.contrib.auth import get_user_model
+from decimal import Decimal
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,15 +15,16 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAdminUser
 from rest_framework import generics
-from translators.serializers import TranslatorSerializer
+from translators.serializers import TranslatorDetailSerializer, LanguageCombinationApprovalSerializer
 from translators.permissions import IsStaffPermission
+from translators.consts import LANGUAGES
 
 class GetModelFieldsView(APIView):
     permission_classes = [IsAdminUser]  # Solo administradores pueden acceder
 
     def get(self, request):
         # Modelos registrados en la app "translators"
-        app_models = [Translator, ProfessionalProfile, LanguageCombination]
+        app_models = [Translator, ProfessionalProfile, LanguageCombination, LanguageCombinationApproval]
         fields = []
 
         for model in app_models:
@@ -75,7 +78,8 @@ class SaveQueryView(APIView):
 
         except IntegrityError:
             return Response(
-                {"success": False, "error": "Ya existe una consulta con este nombre. Por favor, elige otro nombre."},
+                {"success": False, "error": "Ya existe una consulta con este nombre. Por fa"
+                "r, elige otro nombre."},
                 status=status.HTTP_409_CONFLICT
             )
         except Exception as e:
@@ -94,7 +98,7 @@ class ListQueriesView(APIView):
 
 
 class DeleteQueryView(APIView):
-    # ✅ Eliminar consulta (solo staff)
+    # Eliminar consulta (solo staff)
     permission_classes = [IsAdminUser]
 
     def delete(self, request, query_id):
@@ -125,7 +129,7 @@ def model_to_dict(instance, exclude_fields=None):
             data[field.name] = model_to_dict(value, exclude_fields)
         elif isinstance(field, models.ManyToManyField):
             data[field.name] = [model_to_dict(obj, exclude_fields) for obj in value.all()]
-        elif isinstance(value, (int, float, str, bool, type(None))):  # Tipos simples + None
+        elif isinstance(value, (int, float, str, bool, Decimal, type(None))):  # Tipos simples + None
             data[field.name] = value
 
     return data
@@ -147,8 +151,8 @@ class ExecuteQueryView(APIView):
 
             exclude_fields = {
                 'translator': ['password', 'is_superuser', 'is_active', 'is_staff', 'groups', 'user_permissions'],
-                'professional_profile': ['translator'],
-                'language_combination': ['translator'],
+                'professionalprofile': ['translator'],
+                'languagecombination': ['translator'],
             }
 
             query_filter = Q()
@@ -192,7 +196,6 @@ class ExecuteQueryView(APIView):
                 'professional_profile'
             ).prefetch_related('language_combination')
 
-            print("Consulta SQL generada:", translators.query)
 
             results = [
                 {
@@ -241,6 +244,225 @@ class TranslatorDetailViewForAdmin(generics.RetrieveAPIView):
     Para el frontend de React.
     """
     queryset = Translator.objects.all()
-    serializer_class = TranslatorSerializer
+    serializer_class = TranslatorDetailSerializer
     permission_classes = [IsStaffPermission]  # Solo usuarios autenticados y con is_staff=True
     lookup_field = 'id'
+
+
+
+User = get_user_model()
+
+class ApproveLanguageCombinationView(APIView):
+    """
+    Vista para que un superusuario homologue una combinación de idiomas de un traductor
+    """
+    permission_classes = [IsAdminUser]  # Solo superusuarios pueden homologar
+
+    def post(self, request):
+        translator_id = request.data.get('translator_id')
+        combination_id = request.data.get('combination_id')
+        notes = request.data.get('notes', '')
+
+        if not translator_id or not combination_id:
+            return Response(
+                {"error": "Se requiere translator_id y combination_id"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            translator = Translator.objects.get(id=translator_id)
+            combination = LanguageCombination.objects.get(id=combination_id, translator=translator)
+            
+            # Verificar si ya existe la homologación
+            approval, created = LanguageCombinationApproval.objects.get_or_create(
+                superuser=request.user,
+                translator=translator,
+                language_combination=combination,
+                defaults={'notes': notes}
+            )
+            
+            if not created and not approval.is_approved:
+                # Reactivar homologación si estaba deshomologada
+                approval.is_approved = True
+                approval.notes = notes or approval.notes
+                approval.save()
+                message = "Homologación reactivada correctamente"
+            elif not created:
+                return Response(
+                    {"error": "Esta combinación ya está homologada por este superusuario"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            else:
+                message = "Combinación homologada correctamente"
+            
+            serializer = LanguageCombinationApprovalSerializer(approval)
+            return Response({
+                "success": True,
+                "message": message,
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+            
+        except Translator.DoesNotExist:
+            return Response({"error": "Traductor no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        except LanguageCombination.DoesNotExist:
+            return Response({"error": "Combinación de idiomas no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class DisapproveLanguageCombinationView(APIView):
+    """
+    Vista para que un superusuario deshomologue una combinación de idiomas
+    """
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, approval_id):
+        try:
+            approval = LanguageCombinationApproval.objects.get(id=approval_id, superuser=request.user)
+            approval.is_approved = False
+            approval.save()
+            
+            return Response({
+                "success": True,
+                "message": "Homologación eliminada correctamente"
+            }, status=status.HTTP_200_OK)
+            
+        except LanguageCombinationApproval.DoesNotExist:
+            return Response({"error": "Homologación no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ListApprovedCombinationsView(APIView):
+    """
+    Vista para listar todas las combinaciones homologadas (con filtros opcionales)
+    """
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        translator_id = request.query_params.get('translator_id')
+        language_pair = request.query_params.get('language_pair')  # formato "es-en"
+        
+        approvals = LanguageCombinationApproval.objects.filter(is_approved=True)
+        
+        if translator_id:
+            approvals = approvals.filter(translator_id=translator_id)
+        
+        if language_pair:
+            # Buscar por combinación de idiomas
+            source, target = language_pair.split('-')
+            approvals = approvals.filter(
+                language_combination__source_language=source,
+                language_combination__target_language=target
+            )
+            print("Filtrando por language_pair:", source, "->", target)
+        
+        serializer = LanguageCombinationApprovalSerializer(approvals, many=True)
+        return Response({
+            "success": True,
+            "count": approvals.count(),
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)    
+    
+
+class AvailableLanguagesView(APIView):
+    """
+    Vista para obtener los idiomas disponibles en combinaciones homologadas
+    """
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        try:
+            # Obtener todas las combinaciones homologadas
+            approved_combinations = LanguageCombinationApproval.objects.filter(is_approved=True)
+            
+            # Extraer todos los source_language y target_language únicos
+            source_languages_set = set()
+            target_languages_set = set()
+            
+            for approval in approved_combinations:
+                combination = approval.language_combination
+                if combination.source_language:
+                    source_languages_set.add(combination.source_language)
+                if combination.target_language:
+                    target_languages_set.add(combination.target_language)
+            
+            # Obtener nombres de idiomas desde la constante LANGUAGES
+            languages_dict = dict(LANGUAGES)
+            
+            # Formatear la respuesta
+            source_languages = [
+                {
+                    "code": lang_code,
+                    "name": languages_dict.get(lang_code, lang_code)
+                }
+                for lang_code in sorted(source_languages_set)
+            ]
+            
+            target_languages = [
+                {
+                    "code": lang_code,
+                    "name": languages_dict.get(lang_code, lang_code)
+                }
+                for lang_code in sorted(target_languages_set)
+            ]
+            
+            return Response({
+                "success": True,
+                "source_languages": source_languages,
+                "target_languages": target_languages,
+                "total_sources": len(source_languages),
+                "total_targets": len(target_languages)
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                "success": False,
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DashboardStatsView(APIView):
+    """
+    Vista para obtener estadísticas para el dashboard
+    """
+    permission_classes = [IsAdminUser]
+    
+    def get(self, request):
+        try:
+            # Estadísticas de traductores
+            total_translators = Translator.objects.filter(is_staff=False).count()
+            active_translators = Translator.objects.filter(
+                is_staff=False, 
+                is_active=True
+            ).count()
+            
+            # Estadísticas de combinaciones de idiomas
+            total_combinations = LanguageCombination.objects.count()
+            
+            # Combinaciones de idiomas más populares (las que más traductores tienen)
+            popular_pairs = LanguageCombination.objects.values(
+                'source_language', 'target_language'
+            ).annotate(
+                count=Count('translator', distinct=True)
+            ).order_by('-count')[:5]
+            
+            popular_language_pairs = [
+                {
+                    'pair': f"{item['source_language']} → {item['target_language']}",
+                    'count': item['count']
+                }
+                for item in popular_pairs
+            ]
+            
+            return Response({
+                'total_translators': total_translators,
+                'active_translators': active_translators,
+                'total_combinations': total_combinations,
+                'popular_language_pairs': popular_language_pairs
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )            

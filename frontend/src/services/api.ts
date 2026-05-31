@@ -1,8 +1,7 @@
-import { ApiResponse, AuthResponse, Field, Query, QueryCondition, ResultRow, Translator } from '../types/Types';
+import { ApiResponse, ApprovedCombinationsResponse, AuthResponse, AvailableLanguagesResponse, DashboardStats, Field, LanguageCombinationApproval, Query, QueryCondition, ResultRow, Translator } from '../types/Types';
 import instance from './axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-
 
 
 // Obtener campos
@@ -22,15 +21,6 @@ export async function saveQuery(data: { name: string; query: QueryCondition[] })
       message: response.data.message,
     };
 
-  // } catch (error: any) {
-  //   const errorMessage = error.response?.data?.error || 'Error al guardar la consulta';
-    
-  //   return {
-  //     success: false,
-  //     error: errorMessage, // ← Aquí está el mensaje específico
-  //   };
-  // }
-
   } catch (err) {
     let errorMessage = "Error desconocido al guardar la consulta.";
     
@@ -46,7 +36,7 @@ export async function saveQuery(data: { name: string; query: QueryCondition[] })
     }    
     return {
       success: false,
-      error: errorMessage, // ← Aquí está el mensaje específico
+      error: errorMessage, 
     };
   }
 }
@@ -80,6 +70,7 @@ export async function login(username: string, password: string): Promise<AuthRes
 
 import axios from 'axios';
 
+
 // Vista detalle de traductor
 export async function getTranslatorDetail(id: string): Promise<Translator> {
   const token = localStorage.getItem('access_token');
@@ -94,5 +85,45 @@ export async function getTranslatorDetail(id: string): Promise<Translator> {
     },
   });
 
+  return response.data;
+}
+
+
+export async function approveLanguageCombination(translatorId: number, combinationId: number, notes?: string): Promise<ApiResponse<LanguageCombinationApproval>> {
+  const response = await instance.post(`${API_BASE_URL}/approve-combination/`, {
+    translator_id: translatorId,
+    combination_id: combinationId,
+    notes: notes || ''
+  });
+  return response.data;
+}
+
+
+export async function disapproveLanguageCombination(approvalId: number): Promise<ApiResponse<null>> {
+  const response = await instance.delete(`${API_BASE_URL}/disapprove-combination/${approvalId}/`);
+  return response.data;
+}
+
+
+export async function getApprovedCombinations(translatorId?: number, languagePair?: string): Promise<ApprovedCombinationsResponse> {
+    let url = `${API_BASE_URL}/approved-combinations/`;
+    const params = new URLSearchParams();
+    if (translatorId) params.append('translator_id', translatorId.toString());
+    if (languagePair) params.append('language_pair', languagePair);
+    if (params.toString()) url += `?${params.toString()}`;
+    
+    const response = await instance.get(url);
+    return response.data;
+}
+
+
+export async function getAvailableLanguages(): Promise<AvailableLanguagesResponse> {
+    const response = await instance.get(`${API_BASE_URL}/available-languages/`);
+    return response.data;
+}
+
+
+export async function getDashboardStats(): Promise<DashboardStats> {
+  const response = await instance.get(`${API_BASE_URL}/dashboard-stats/`);
   return response.data;
 }

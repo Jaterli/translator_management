@@ -1,17 +1,36 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faBars, faTimes, faSun, faMoon, faHome } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faSignOutAlt, 
+  faBars, 
+  faTimes, 
+  faSun, 
+  faMoon, 
+  faHome, 
+  faCheckCircle,
+  faDatabase,
+  faTableList,
+  faUserCircle,
+  faChevronDown
+} from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from "../context/ThemeContext";
+import { Dropdown } from 'react-bootstrap';
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -22,16 +41,16 @@ const Navbar: React.FC = () => {
           className={({ isActive }) => 
             `navbar-brand d-flex align-items-center ${isActive ? 'active' : ''}`
           } 
-          to={isAuthenticated ? "/dashboard" : "/"}
+          to="/"
           end
         >
           <img 
-            src="/images/logo-gc.png" 
+            src="/images/logo-TM.png" 
             alt="Logo" 
             height="40" 
             className="d-inline-block align-top"
           />
-          <span className="ms-2 navbar-title">Gestor de consultas</span>
+          <span className="ms-2 navbar-title">Translator <br />Management</span>
         </NavLink>
 
         {/* Botón de toggle */}
@@ -56,8 +75,8 @@ const Navbar: React.FC = () => {
                     }
                     to="/dashboard"
                   >
-                    <FontAwesomeIcon icon={faHome} className="me-1" />
-                    Inicio
+                    <FontAwesomeIcon icon={faHome} className="me-2" />
+                    Dashboard
                   </NavLink>
                 </li>
                 <li className="nav-item">
@@ -67,6 +86,7 @@ const Navbar: React.FC = () => {
                     }
                     to="/list-queries"
                   >
+                    <FontAwesomeIcon icon={faDatabase} className="me-2" />
                     Consultas
                   </NavLink>
                 </li>
@@ -77,22 +97,28 @@ const Navbar: React.FC = () => {
                     }
                     to="/query-results"
                   >
+                    <FontAwesomeIcon icon={faTableList} className="me-2" />
                     Resultados
                   </NavLink>
                 </li>
                 <li className="nav-item">
-                  <div className="text-info">
-                    <span className="me-2">{user.name}</span>
-                    <span>({user.email})</span>
-                  </div>
+                  <NavLink 
+                    className={({ isActive }) => 
+                      `nav-link ${isActive ? 'active' : ''}`
+                    }
+                    to="/approved-combinations"
+                  >
+                    <FontAwesomeIcon icon={faCheckCircle} className="me-2" />
+                    Homologaciones
+                  </NavLink>
                 </li>
               </>
             )}
 
             {/* Switch de tema */}
-            <li>
+            <li className="nav-item ms-2">
               <button
-                className="btn btn-outline btn-sm ms-2"
+                className="btn-sm  theme-toggle-btn"
                 onClick={toggleTheme}
                 aria-label={`Cambiar a modo ${isDarkMode ? 'claro' : 'oscuro'}`}
                 title={`Cambiar a modo ${isDarkMode ? 'claro' : 'oscuro'}`}
@@ -101,29 +127,49 @@ const Navbar: React.FC = () => {
               </button>
             </li>
 
-            <li className="d-flex align-items-center">
-              {isAuthenticated ? (
-                <button 
-                  onClick={logout} 
-                  className="btn btn-outline btn-sm"
-                  aria-label="Cerrar sesión"
-                >
-                  <FontAwesomeIcon icon={faSignOutAlt} /> Salir
-                </button>
-              ) : (
+            {/* Desplegable de usuario */}
+            {isAuthenticated && user ? (
+              <li className="nav-item dropdown-user">
+                <Dropdown align="end">
+                  <Dropdown.Toggle 
+                    variant="link" 
+                    id="dropdown-user-menu" 
+                    className="nav-link dropdown-toggle-custom"
+                  >
+                    <FontAwesomeIcon icon={faUserCircle} className="me-2" />
+                    <span className="user-name">{user.name}</span>
+                    <FontAwesomeIcon icon={faChevronDown} className="ms-2 dropdown-arrow" />
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu className="dropdown-menu-custom">
+                    <div className="dropdown-header">
+                      <small className="text-muted">Conectado como</small>
+                      <div className="user-email">{user.email}</div>
+                    </div>
+                    <Dropdown.Divider />
+                    <Dropdown.Item onClick={handleLogout} className="dropdown-item-logout">
+                      <FontAwesomeIcon icon={faSignOutAlt} className="me-2" />
+                      Cerrar sesión
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </li>
+            ) : (
+              <li className="nav-item">
                 <NavLink 
                   to="/login" 
                   className={({ isActive }) => 
                     `btn btn-outline ${isActive ? 'active' : ''}`
                   }
                 >
+                  <FontAwesomeIcon icon={faUserCircle} className="me-2" />
                   Login
                 </NavLink>
-              )}
-            </li>
+              </li>
+            )}
           </ul>
         </div>
-      </div>
+      </div>   
     </nav>
   );
 };

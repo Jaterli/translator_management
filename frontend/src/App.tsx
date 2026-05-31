@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Footer from "./components/Footer.tsx";
 import TranslatorDetail from './pages/TranslatorDetail.tsx';
 import LandingPage from './pages/LandingPage.tsx';
+import ApprovedCombinations from './pages/ApprovedCombinations.tsx';
 
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
@@ -22,7 +23,7 @@ const App: React.FC = () => {
     <AuthProvider>
       <Router>
         <Navbar />
-          <div className="container-xxl mt-5">
+          <div className="container-xxl flex-grow-1 mt-5">
           <Routes>
             <Route path="/" element={<LandingPage />} />   
             <Route path="/login" element={<Login />} />
@@ -31,6 +32,7 @@ const App: React.FC = () => {
             <Route path="/list-queries" element={<PrivateRoute><QueryList /></PrivateRoute>} />
             <Route path="/query-results/:queryId?" element={<PrivateRoute><QueryResults /></PrivateRoute>} />
             <Route path="/translator-detail/:id" element={<PrivateRoute><TranslatorDetail /></PrivateRoute> } />            
+            <Route path="/approved-combinations" element={<PrivateRoute><ApprovedCombinations /></PrivateRoute>} />            
           </Routes>
           </div>
           <Footer />        

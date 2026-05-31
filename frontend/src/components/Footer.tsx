@@ -1,35 +1,51 @@
 const Footer = () => {
   return (
-    <footer className="py-4">
-      <div className="container-xxl text-center mt-4">
-        <img 
-          src="/images/Logo-jtl.png" 
-          alt="Logotipo de Jaterli" 
-          className="img-fluid" 
-          style={{ width: "80px" }}
-        />
-        <p className="mb-0">Aplicación creada con ❤️ por <strong className="text-body">Jaterli</strong></p>
-        <div className="d-flex justify-content-center gap-3">
-          <a 
-            href="https://github.com/Jaterli" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-decoration-none"
-          >
-            <i className="bi bi-github"></i> GitHub
-          </a>
-          <a 
-            href="https://jaterli.com" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-decoration-none"
-          >
-            <i className="bi bi-globe"></i> Blog Personal
-          </a>
+    <footer className="footer mt-4">
+      <div className="container-xxl">
+        <div className="row align-items-center gy-3">
+          {/* Logo */}
+          <div className="col-md-3 text-center text-md-start">
+            <img 
+              src="/images/Logo-jtl.png" 
+              alt="Logotipo de Jaterli" 
+              className="footer-logo"
+              height="75"
+            />
+          </div>
+
+          {/* Copyright y amor */}
+          <div className="col-md-5 text-center">
+            <p className="mb-0 footer-text">
+              Aplicación creada con <span className="footer-heart">❤️</span> por 
+              <strong className="footer-brand"> Jaterli</strong>
+            </p>
+            <p className="footer-copyright mb-0">
+              &copy; {new Date().getFullYear()} Jaterli. Todos los derechos reservados.
+            </p>
+          </div>
+
+          {/* Enlaces sociales */}
+          <div className="col-md-4 text-center text-md-end">
+            <div className="footer-links">
+              <a 
+                href="https://github.com/Jaterli" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="footer-link"
+              >
+                <span>GitHub</span>
+              </a>
+              <a 
+                href="https://jaterli.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="footer-link"
+              >
+                <span>Blog</span>
+              </a>
+            </div>
+          </div>
         </div>
-        <p className="text-muted" style={{ fontSize: "0.9rem" }}>
-          &copy; {new Date().getFullYear()} Jaterli. Todos los derechos reservados.
-        </p>
       </div>
     </footer>
   );

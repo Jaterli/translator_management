@@ -1,8 +1,18 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { executeQuery, getQueries } from '../services/api';
-import { Table, Card, Alert, Form } from 'react-bootstrap';
-import { faList, faPlusCircle, faEye, faFileExcel } from '@fortawesome/free-solid-svg-icons';
+import { Table, Card, Alert, Form, Badge, Spinner, Row, Col, Button, Offcanvas } from 'react-bootstrap';
+import { 
+    faList, 
+    faPlusCircle, 
+    faFileExcel,
+    faDownload,
+    faDatabase,
+    faClock,
+    faColumns,
+    faCheckCircle,
+    faSlidersH
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import LinkButton from '../components/ui/LinkButton';
 import * as XLSX from 'xlsx';
@@ -18,44 +28,172 @@ import {
   QueryCondition
 } from '../types/Types';
 
+// Configuración de campos disponibles
+interface AvailableField {
+    key: string;
+    label: string;
+    model: string;
+    required: boolean;
+}
+
 const QueryResults: React.FC = () => {
   const { queryId: initialQueryId } = useParams<{ queryId: string }>();
   const [queries, setQueries] = useState<Query[]>([]);
-  const [selectedQueryId, setSelectedQueryId] = useState<string | null>(initialQueryId || null);
+  const [selectedQueryId, setSelectedQueryId] = useState<string | null>(() => {
+    // Si hay queryId en URL, usarlo (ignorar localStorage)
+    if (initialQueryId) {
+      return initialQueryId;
+    }
+    // Si no hay queryId en URL, intentar cargar desde localStorage
+    const saved = localStorage.getItem('lastSelectedQueryId');
+    return saved || null;
+  });
   const [selectedQuery, setSelectedQuery] = useState<Query | null>(null);
-  // Mostramos la query actual como string (id o representación)
-  const [query, setQuery] = useState<string | null>(null);
-
-  // columnas dinámicas: "Translator_first_name", "ProfessionalProfile_education", "LanguageCombination", ...
-  const [columns, setColumns] = useState<string[]>([]);
-  // results son las filas procesadas (ProcessedRow)
+  const [allColumns, setAllColumns] = useState<string[]>([]);
+  const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
   const [results, setResults] = useState<ProcessedRow[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showColumnSelector, setShowColumnSelector] = useState<boolean>(false);
 
-  // Memoizamos fieldMapping
   const fieldMapping: FieldMapping = useMemo(
     () => ({
       Translator: {
-        id: "id",
-        first_name: "Nombre",
+        id: "ID",
         email: "Email",
+        first_name: "Nombre",
+        last_name: "Apellidos",
         country: "País",
-        postal_code: "CP"
+        province: "Provincia",
+        city: "Ciudad",
+        postal_code: "CP",
+        mobile_phone: "Teléfono",
+        registration_date: "Fecha registro",
+        last_access: "Último acceso"
       },
       ProfessionalProfile: {
         native_languages: "Idiomas nativos",
         education: "Educación",
-        experience: "Experiencia"
+        degree: "Titulación",
+        employment_status: "Situación laboral",
+        experience: "Experiencia",
+        softwares: "Software"
       },
       LanguageCombination: {
         source_language: "Origen",
         target_language: "Destino",
-        price_per_word: "P/pal.",
+        price_per_word: "P/palabra",
+        sworn_price_per_word: "P/palabra jurada",
+        price_per_hour: "P/hora",
         services: "Servicios",
-        text_types: "Texto"
+        text_types: "Tipos de texto"
       }
     }), []
   );
+
+  // Definir campos disponibles para selección
+  const availableFields: AvailableField[] = useMemo(() => {
+    const fields: AvailableField[] = [];
+    
+    // Campos obligatorios
+    fields.push({
+        key: 'Translator_email',
+        label: 'Email',
+        model: 'Translator',
+        required: true
+    });
+    
+    fields.push({
+        key: 'ProfessionalProfile_native_languages',
+        label: 'Idiomas nativos',
+        model: 'ProfessionalProfile',
+        required: true
+    });
+    
+    fields.push({
+        key: 'LanguageCombination',
+        label: 'Combinaciones de idiomas',
+        model: 'LanguageCombination',
+        required: true
+    });
+    
+    // Campos opcionales de Translator
+    const optionalTranslatorFields = ['first_name', 'last_name', 'country', 'province', 
+                                       'postal_code', 'mobile_phone', 'registration_date', 'last_access'];
+    optionalTranslatorFields.forEach(field => {
+        fields.push({
+            key: `Translator_${field}`,
+            label: fieldMapping.Translator[field as keyof typeof fieldMapping.Translator] || field,
+            model: 'Translator',
+            required: false
+        });
+    });
+    
+    // Campos opcionales de ProfessionalProfile
+    const optionalProfileFields = ['education', 'degree', 'employment_status', 'experience', 'softwares'];
+    optionalProfileFields.forEach(field => {
+        fields.push({
+            key: `ProfessionalProfile_${field}`,
+            label: fieldMapping.ProfessionalProfile[field as keyof typeof fieldMapping.ProfessionalProfile] || field,
+            model: 'ProfessionalProfile',
+            required: false
+        });
+    });
+    
+    return fields;
+  }, [fieldMapping]);
+
+  // Cargar preferencias de columnas desde localStorage
+  useEffect(() => {
+    const savedColumns = localStorage.getItem('selectedColumns');
+    if (savedColumns) {
+      try {
+        const parsed = JSON.parse(savedColumns);
+        // Asegurar que los campos obligatorios están incluidos
+        const requiredKeys = availableFields.filter(f => f.required).map(f => f.key);
+        const mergedColumns = [...new Set([...requiredKeys, ...parsed])];
+        setSelectedColumns(mergedColumns);
+      } catch (e) {
+        // Si hay error, usar campos obligatorios
+        console.error("Error al cargar preferencias de columnas:", e);
+        setSelectedColumns(availableFields.filter(f => f.required).map(f => f.key));
+      }
+    } else {
+      // Por defecto: campos obligatorios + algunos opcionales
+      const defaultColumns = availableFields
+        .filter(f => f.required || ['Translator_first_name', 'Translator_last_name', 'ProfessionalProfile_experience'].includes(f.key))
+        .map(f => f.key);
+      setSelectedColumns(defaultColumns);
+    }
+  }, [availableFields]);
+
+  // Guardar columnas seleccionadas en localStorage
+  const saveColumnPreferences = useCallback((columns: string[]) => {
+    localStorage.setItem('selectedColumns', JSON.stringify(columns));
+    setSelectedColumns(columns);
+  }, []);
+
+  const toggleColumn = (columnKey: string) => {
+    const field = availableFields.find(f => f.key === columnKey);
+    if (field?.required) return; // No permitir desmarcar campos obligatorios
+    
+    if (selectedColumns.includes(columnKey)) {
+      saveColumnPreferences(selectedColumns.filter(c => c !== columnKey));
+    } else {
+      saveColumnPreferences([...selectedColumns, columnKey]);
+    }
+  };
+
+  const selectAllOptional = () => {
+    const optionalKeys = availableFields.filter(f => !f.required).map(f => f.key);
+    const requiredKeys = availableFields.filter(f => f.required).map(f => f.key);
+    saveColumnPreferences([...requiredKeys, ...optionalKeys]);
+  };
+
+  const clearOptional = () => {
+    const requiredKeys = availableFields.filter(f => f.required).map(f => f.key);
+    saveColumnPreferences(requiredKeys);
+  };
 
   const exportToExcel = () => {
     if (results.length === 0) {
@@ -63,22 +201,19 @@ const QueryResults: React.FC = () => {
       return;
     }
 
-    // ExportRow: todas las celdas finales como string
     const formattedData: ExportRow[] = results.map(row => {
       const newRow: ExportRow = {};
 
-      columns.forEach(col => {
+      selectedColumns.forEach(col => {
         if (col === "LanguageCombination") {
-          // row.LanguageCombination es LanguageCombination[] | undefined
           const combos = row.LanguageCombination;
-          newRow[col] =
+          newRow[getAlternateColumnName(col)] =
             combos
-              ?.map(c => Object.values(c).join(", ")) // convierto cada combinación a string
+              ?.map(c => `${c.source_language} → ${c.target_language}`)
               .join(" | ") || "N/A";
         } else {
-          // Para columnas normales (ya procesadas en processedRow) solo convierto a string
           const cell = row[col];
-          newRow[getAlternateColumnName(col)] = cell ? String(cell) : "N/A";
+          newRow[getAlternateColumnName(col)] = cell !== undefined && cell !== null ? String(cell) : "N/A";
         }
       });
 
@@ -88,10 +223,9 @@ const QueryResults: React.FC = () => {
     const worksheet = XLSX.utils.json_to_sheet(formattedData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
-    XLSX.writeFile(workbook, `Consulta_${selectedQuery?.name || selectedQueryId}.xlsx`);
+    XLSX.writeFile(workbook, `Consulta_${selectedQuery?.name || selectedQueryId}_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
-  // Obtener y ordenar consultas
   useEffect(() => {
     async function fetchQueries() {
       try {
@@ -102,7 +236,7 @@ const QueryResults: React.FC = () => {
           );
           setQueries(sortedQueries);
 
-          if (!initialQueryId && sortedQueries.length > 0) {
+          if (!selectedQueryId && sortedQueries.length > 0) {
             setSelectedQueryId(sortedQueries[0].id.toString());
           }
         }
@@ -112,12 +246,21 @@ const QueryResults: React.FC = () => {
       }
     }
     fetchQueries();
-  }, [initialQueryId]);
+  }, []);
 
-  // Ejecutar la consulta seleccionada y procesar resultados
+  // Guardar última consulta seleccionada
+  useEffect(() => {
+    if (selectedQueryId) {
+      localStorage.setItem('lastSelectedQueryId', selectedQueryId);
+    }
+  }, [selectedQueryId]);
+
   useEffect(() => {
     async function fetchResults() {
       if (!selectedQueryId) return;
+
+      setLoading(true);
+      setError(null);
 
       try {
         const data = await executeQuery(selectedQueryId);
@@ -129,7 +272,7 @@ const QueryResults: React.FC = () => {
         const extractedColumns: string[] = [];
         const processedResults: ProcessedRow[] = [];
 
-        // Construir lista de columnas (Translator_* y ProfessionalProfile_*)
+        // Extraer todas las columnas disponibles
         Object.keys(fieldMapping).forEach(modelKey => {
           if (modelKey !== "LanguageCombination") {
             Object.keys(fieldMapping[modelKey]).forEach(field => {
@@ -140,15 +283,12 @@ const QueryResults: React.FC = () => {
             });
           }
         });
-
-        // Añadimos la columna de combinaciones (especial)
         extractedColumns.push("LanguageCombination");
+        setAllColumns(extractedColumns);
 
-        // Procesar cada fila recibida (data.results)
         data.results.forEach((row: ResultRow) => {
           const processedRow: ProcessedRow = {};
 
-          // Aplanar Translator
           if (row.Translator && fieldMapping.Translator) {
             Object.keys(fieldMapping.Translator).forEach(field => {
               const columnKey = `Translator_${field}`;
@@ -157,17 +297,14 @@ const QueryResults: React.FC = () => {
             });
           }
 
-          // Aplanar ProfessionalProfile
           if (row.ProfessionalProfile && fieldMapping.ProfessionalProfile) {
             Object.keys(fieldMapping.ProfessionalProfile).forEach(field => {
               const columnKey = `ProfessionalProfile_${field}`;
               const value = (row.ProfessionalProfile as ProfessionalProfile)[field as keyof typeof row.ProfessionalProfile];
-              // Aquí usamos `as any` solo para indexar propiedades del profile porque son campos dinámicos (but safe)
               processedRow[columnKey] = value !== undefined && value !== null ? String(value) : "N/A";
             });
           }
 
-          // Mantener las combinaciones de idiomas como arreglo de objetos LanguageCombination (para render)
           if (row.LanguageCombination) {
             processedRow.LanguageCombination = row.LanguageCombination;
           }
@@ -175,11 +312,7 @@ const QueryResults: React.FC = () => {
           processedResults.push(processedRow);
         });
 
-        // Guardar query como string para mostrar fallback
-        setQuery(data.query ? JSON.stringify(data.query) : `#${selectedQueryId}`);
-        setColumns(extractedColumns);
         setResults(processedResults);
-        setError(null);
       } catch (err) {
         console.error("Error al procesar los resultados:", err);
         if (err instanceof Error) {
@@ -188,13 +321,13 @@ const QueryResults: React.FC = () => {
         } else {
           setError("Error desconocido al obtener resultados.");
         }
+      } finally {
+        setLoading(false);
       }
     }
     fetchResults();
-    // fieldMapping es estable (useMemo con []), selectedQueryId define ejecución
   }, [selectedQueryId, fieldMapping]);
 
-  // Actualizar selectedQuery cuando cambian queries o selectedQueryId
   useEffect(() => {
     if (selectedQueryId) {
       const query = queries.find(q => q.id == selectedQueryId);
@@ -203,56 +336,60 @@ const QueryResults: React.FC = () => {
   }, [selectedQueryId, queries]);
 
   const getAlternateColumnName = (columnKey: string): string => {
+    const field = availableFields.find(f => f.key === columnKey);
+    if (field) return field.label;
+    
+    // Fallback
     const [modelKey, ...fieldParts] = columnKey.split("_");
-    const field = fieldParts.join("_");
-
-    if (fieldMapping[modelKey] && fieldMapping[modelKey][field]) {
-      return fieldMapping[modelKey][field];
+    const fieldName = fieldParts.join("_");
+    if (fieldMapping[modelKey] && fieldMapping[modelKey][fieldName]) {
+      return fieldMapping[modelKey][fieldName];
     }
     return columnKey;
   };
 
-  // Ahora renderLanguageCombinationTable espera LanguageCombination[] y usa fieldMapping
   const renderLanguageCombinationTable = (combinations?: LanguageCombination[] | string[]) => {
     if (!combinations || combinations.length === 0) {
-      return 'N/A';
+      return <span className="text-muted">N/A</span>;
     }
 
-    // Si por alguna razón vienen ya como strings (no debería ocurrir con la implementación actual),
-    // lo mostramos en filas sencillas.
     if (typeof combinations[0] === 'string') {
       return (
-        <Table striped bordered size="sm" className="mb-0 fs-custom-7">
-          <tbody>
-            {(combinations as string[]).map((c, i) => (
-              <tr key={i}><td>{c}</td></tr>
-            ))}
-          </tbody>
-        </Table>
+        <div className="small">
+          {(combinations as string[]).map((c, i) => (
+            <div key={i}>• {c}</div>
+          ))}
+        </div>
       );
     }
 
     const combos = combinations as LanguageCombination[];
 
     return (
-      <Table striped bordered size="sm" className="mb-0 fs-custom-7">
-        <thead>
-          <tr className='text-nowrap'>
-            {Object.keys(fieldMapping.LanguageCombination).map((field, index) => (
-              <th key={index}>{fieldMapping.LanguageCombination[field]}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {combos.map((combination, index) => (
-            <tr key={index}>
-              {Object.keys(fieldMapping.LanguageCombination).map((field, idx) => (
-                <td key={idx}>{(combination)[field as keyof LanguageCombination] || 'N/A'}</td>
-              ))}
+      <div className="table-responsive">
+        <Table striped bordered size="sm" className="mb-0 small">
+          <thead>
+            <tr className="text-nowrap">
+              <th>Origen</th>
+              <th>Destino</th>
+              <th>P/palabra</th>
+              <th>Servicios</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {combos.map((combination, index) => (
+              <tr key={index}>
+                <td>{combination.source_language || 'N/A'}</td>
+                <td>{combination.target_language || 'N/A'}</td>
+                <td>{combination.price_per_word || 'N/A'} €</td>
+                <td className="text-truncate" style={{ maxWidth: '150px' }}>
+                  {combination.services || 'N/A'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
     );
   };
 
@@ -262,30 +399,76 @@ const QueryResults: React.FC = () => {
 
   const formatQuery = (q: QueryCondition[] = []): JSX.Element[] => {
     return q.map((item, index) => (
-      <div key={index}>
-        <strong>{item.model}.{item.field}</strong> {item.operator} "{item.value}" {item.logical ? `(${item.logical})` : ''}
+      <div key={index} className="mb-1">
+        <code>
+          <strong>{item.model}.{item.field}</strong> {item.operator} "{item.value}"
+          {item.logical && <span className="text-muted ms-2">({item.logical})</span>}
+        </code>
       </div>
     ));
   };
 
+  // Obtener columnas visibles para la tabla
+  const visibleColumns = allColumns.filter(col => selectedColumns.includes(col));
+
   if (error) {
     return (
       <div className="mt-4">
-        <Alert variant="danger">{error}</Alert>
+        <Alert variant="danger">
+          <Alert.Heading>Error</Alert.Heading>
+          <p>{error}</p>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <section className="mt-4">
-      <Card>
-        <Card.Header as="h1" className="text-center">
-          Consulta "{selectedQuery ? selectedQuery.name : `${query}`}"
+    <div className="mt-4">
+      <Card className="mb-4 shadow-sm">
+        <Card.Header className="bg-primary text-white">
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h2 className="h4 mb-0">
+              <FontAwesomeIcon icon={faDatabase} className="me-2" />
+              Resultados de Consulta
+            </h2>
+            <div className="d-flex gap-2">
+              {selectedQuery && (
+                <Badge bg="light" text="dark" className="fs-6">
+                  {selectedQuery.name}
+                </Badge>
+              )}
+              <Button 
+                variant="light" 
+                size="sm"
+                onClick={() => setShowColumnSelector(true)}
+              >
+                <FontAwesomeIcon icon={faColumns} className="me-1" />
+                Columnas
+              </Button>
+              {results.length > 0 && (
+                <Button 
+                  variant="light" 
+                  size="sm"
+                  onClick={exportToExcel}
+                >
+                  <FontAwesomeIcon icon={faDownload} className="me-1" />
+                  Exportar
+                </Button>
+              )}
+            </div>
+          </div>
         </Card.Header>
         <Card.Body>
+          {/* Selector de consulta */}
           <Form.Group className="mb-4">
-            <Form.Label>Consultas:</Form.Label>
-            <Form.Select value={selectedQueryId || ''} onChange={handleQueryChange}>
+            <Form.Label className="fw-bold">
+              <FontAwesomeIcon icon={faDatabase} className="me-2" />
+              Consultas disponibles
+            </Form.Label>
+            <Form.Select 
+              value={selectedQueryId || ''} 
+              onChange={handleQueryChange}
+            >
               <option value="">Selecciona una consulta</option>
               {queries.length > 0 &&
                 queries.map((q) => (
@@ -296,64 +479,199 @@ const QueryResults: React.FC = () => {
             </Form.Select>
           </Form.Group>
 
-          {selectedQuery && (
+          {/* Detalle de la consulta */}
+          {selectedQuery && selectedQuery.query && selectedQuery.query.length > 0 && (
             <div className="mb-4">
-              <div className="border rounded bg-body-secondary p-3 fs-custom-7">
-                <h5>SQL:</h5>
-                {formatQuery(selectedQuery.query)}
+              <div className="border rounded p-3">
+                <h6 className="mb-2 text-muted">
+                  <FontAwesomeIcon icon={faClock} className="me-2" />
+                  Criterios de la consulta:
+                </h6>
+                <div className="small">
+                  {formatQuery(selectedQuery.query)}
+                </div>
               </div>
             </div>
           )}
 
-          {results.length > 0 ? (
-            <Table striped bordered hover responsive>
-              <thead>
-                <tr>
-                  {columns.map((col, index) => (
-                    <th key={index}>
-                      {col === "LanguageCombination" ? "Combinaciones de idiomas" : getAlternateColumnName(col)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {results.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {columns.map((col, colIndex) => (
-                      <td key={colIndex}>
-                        {col === "LanguageCombination" ? (
-                          renderLanguageCombinationTable(row[col] as LanguageCombination[] | undefined)
-                        ) : col === "Translator_id" ? (
-                          // Para Translator_id, row[col] es el id (string) que pusimos al aplanar
-                          <Link to={`/translator-detail/${String(row[col])}/`}>
-                            <FontAwesomeIcon icon={faEye} />
-                          </Link>
-                        ) : (
-                          String(row[col] ?? 'N/A')
-                        )}
-                      </td>
+          {/* Resultados */}
+          {loading ? (
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="primary" />
+              <p className="mt-2">Ejecutando consulta...</p>
+            </div>
+          ) : results.length > 0 ? (
+            <>
+              <div className="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span>
+                  <FontAwesomeIcon icon={faCheckCircle} className="text-success me-1" />
+                  {results.length} {results.length === 1 ? 'resultado' : 'resultados'} encontrados
+                </span>
+                <span className="text-muted small">
+                  <FontAwesomeIcon icon={faColumns} className="me-1" />
+                  {visibleColumns.length} columnas visibles
+                </span>
+              </div>
+              <div className="table-responsive">
+                <Table striped bordered hover>
+                  <thead className="table-dark">
+                    <tr>
+                      {visibleColumns.map((col, index) => (
+                        <th key={index} className="text-nowrap">
+                          {col === "LanguageCombination" ? "Combinaciones" : getAlternateColumnName(col)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {visibleColumns.map((col, colIndex) => (
+                          <td key={colIndex} className="align-middle">
+                            {col === "LanguageCombination" ? (
+                              renderLanguageCombinationTable(row[col] as LanguageCombination[] | undefined)
+                            ) : col === "Translator_email" ? (
+                              <Link 
+                                  to={`/translator-detail/${row['Translator_id']}/`} 
+                                  className="text-decoration-none fw-bold"
+                              >
+                                  {String(row[col] ?? 'Ver')}
+                              </Link>
+
+                            ) : (
+                              <span className="small">
+                                {String(row[col] ?? 'N/A')}
+                              </span>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
                     ))}
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+                  </tbody>
+                </Table>
+              </div>
+            </>
+          ) : selectedQueryId ? (
+            <Alert variant="info" className="text-center">
+              <p className="mb-0">No se encontraron resultados para esta consulta.</p>
+            </Alert>
           ) : (
-            <Alert variant="info">No se han encontrado resultados.</Alert>
+            <Alert variant="secondary" className="text-center">
+              <p className="mb-0">Selecciona una consulta para ver los resultados.</p>
+            </Alert>
           )}
         </Card.Body>
-        <Card.Footer className="d-flex flex-column flex-md-row gap-2 justify-content-center">
-          <LinkButton to="/list-queries" icon={faList} className='w-100 mb-2 mb-md-0' variant="success" size="lg">
-            Listar consultas
-          </LinkButton>
-          <LinkButton to="/query-form" icon={faPlusCircle} className='w-100 mb-2 mb-md-0' variant="primary" size="lg">
-            Crear una consulta
-          </LinkButton>
-          <LinkButton onClick={() => exportToExcel()} icon={faFileExcel} variant="warning" size="lg">
-            Exportar a Excel
-          </LinkButton>
+        <Card.Footer>
+          <Row className="g-2">
+            <Col xs={12} md={4}>
+              <LinkButton to="/list-queries" icon={faList} variant="success" size="lg" className="w-100">
+                Listar consultas
+              </LinkButton>
+            </Col>
+            <Col xs={12} md={4}>
+              <LinkButton to="/query-form" icon={faPlusCircle} variant="primary" size="lg" className="w-100">
+                Crear consulta
+              </LinkButton>
+            </Col>
+            <Col xs={12} md={4}>
+              {results.length > 0 && (
+                <Button variant="warning" size="lg" onClick={exportToExcel} className="w-100">
+                  <FontAwesomeIcon icon={faFileExcel} className="me-2" />
+                  Exportar Excel
+                </Button>
+              )}
+            </Col>
+          </Row>
         </Card.Footer>
       </Card>
-    </section>
+
+      {/* Panel de selección de columnas */}
+      <Offcanvas show={showColumnSelector} onHide={() => setShowColumnSelector(false)} placement="end">
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>
+            <FontAwesomeIcon icon={faSlidersH} className="me-2" />
+            Seleccionar columnas
+          </Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <div className="mb-3">
+            <Button variant="outline-primary" size="sm" onClick={selectAllOptional} className="me-2">
+              Seleccionar todas
+            </Button>
+            <Button variant="outline-secondary" size="sm" onClick={clearOptional}>
+              Solo obligatorias
+            </Button>
+          </div>
+          
+          <div className="mb-3 text-muted small">
+            <FontAwesomeIcon icon={faCheckCircle} className="text-success me-1" />
+            Los campos marcados con <Badge bg="success" className="ms-1">Obligatorio</Badge> no pueden ocultarse
+          </div>
+          
+          <hr />
+          
+          {availableFields.map((field) => {
+            const isSelected = selectedColumns.includes(field.key);
+            const isRequired = field.required;
+            
+            return (
+              <Form.Check
+                key={field.key}
+                type="checkbox"
+                id={field.key}
+                label={
+                  <span>
+                    {field.label}
+                    {isRequired && (
+                      <Badge bg="success" className="ms-2" style={{ fontSize: '0.7rem' }}>
+                        Obligatorio
+                      </Badge>
+                    )}
+                  </span>
+                }
+                checked={isSelected}
+                onChange={() => toggleColumn(field.key)}
+                disabled={isRequired}
+                className="mb-2 py-1"
+              />
+            );
+          })}
+          
+          <hr />
+          
+          <div className="mt-3">
+            <Button variant="primary" onClick={() => setShowColumnSelector(false)} className="w-100">
+              Aplicar
+            </Button>
+          </div>
+        </Offcanvas.Body>
+      </Offcanvas>
+
+      {/* Estadísticas resumidas */}
+      {!loading && results.length > 0 && (
+        <Card className="shadow-sm">
+          <Card.Header className="bg-secondary text-white">
+            <h5 className="mb-0">Resumen</h5>
+          </Card.Header>
+          <Card.Body>
+            <Row>
+              <Col md={6}>
+                <div className="text-center">
+                  <h3 className="text-primary">{results.length}</h3>
+                  <p className="text-muted mb-0">Resultados obtenidos</p>
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="text-center">
+                  <h3 className="text-primary">{visibleColumns.length}</h3>
+                  <p className="text-muted mb-0">Columnas visibles</p>
+                </div>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+      )}
+    </div>
   );
 };
 

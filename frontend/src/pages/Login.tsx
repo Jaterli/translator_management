@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
 import { Button, Form, Card, Alert } from 'react-bootstrap';
-import logo from '/images/logo-gc.png'; // Importa la misma imagen del logo
+import logo from '/images/logo-TM.png'; // Importa la misma imagen del logo
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -39,7 +39,7 @@ const Login = () => {
         <div className="text-center mb-4">
           <img
             src={logo}
-            alt="Logo de Gestor de Consultas"
+            alt="Logo de Translator Management"
             className="img-fluid"
             style={{ maxHeight: '100px', width: 'auto' }}
           />

@@ -1,14 +1,35 @@
+/* ============================================
+   BASE (Mobile First - estilos por defecto)
+   ============================================ */
+
+/* Reseteo y estilos base */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0 0 1rem 0;
+    padding: 0 0 0 0;
 }
 
-/* Estilos para la barra de navegación */
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1, h2, h3 {
+    color: #333;
+}
+
+.fs-custom-7 {
+    font-size: 0.8rem;
+}
+
+/* ============================================
+   BARRA DE NAVEGACIÓN (Mobile First)
+   ============================================ */
+
 nav.navbar {
     padding: 0.5rem 0;
 }
-
 
 .navbar-brand {
     font-weight: 600;
@@ -27,6 +48,7 @@ nav.navbar {
     transform: scale(1.05);
 }
 
+/* Toggle button (hamburguesa) */
 .navbar-toggler {
     border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 0.4rem 0.7rem;
@@ -36,144 +58,179 @@ nav.navbar {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
 }
 
+/* Menú colapsado en móvil */
+.navbar-collapse {
+    border-radius: 10px;
+    margin-top: 15px;
+    padding: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Navegación en móvil */
 .navbar-nav {
     align-items: center;
+    padding: 10px 0;
+}
+
+.nav-item {
+    margin: 2px 0;
+    width: 100%;
 }
 
 .nav-link {
     font-weight: 500;
-    padding: 4px 10px !important;
-    margin: 0 5px;
-    border-radius: 6px;
+    padding: 12px 15px !important;
+    margin: 5px 0;
+    display: block;
+    text-align: center;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
     position: relative;
 }
 
-/* Estilo para enlaces activos */
+.nav-link:not(:last-child) {
+    margin-bottom: 10px;
+}
+
+/* Enlace activo */
 .nav-link.active {
     background-color: #0d6efd !important;
     color: #ffffff !important;
 }
 
-/* Estilo para hover en enlaces */
+/* Hover en enlaces */
 .nav-link:hover {
     background-color: #0d6efd !important;
     color: #ffffff !important;
 }
 
-/* Efecto de subrayado al hacer hover */
+/* Efecto de subrayado (solo se muestra en desktop) */
 .nav-link::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: 0;
-    left: 50%;
-    background-color: #3498db;
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
+    content: none;
 }
 
-
-/* Estilo para el botón de logout */
-.btn-outline-light {
+/* Botón de logout/theme en móvil */
+.btn-outline-light,
+.btn-outline {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
     border: 1px solid rgba(255, 255, 255, 0.3);
-    color: #ecf0f1;
     transition: all 0.3s ease;
     font-weight: 500;
     font-size: 15px;
-    padding: 5px 12px;    
 }
 
-.btn-outline-light:hover {
+.btn-outline-light:hover,
+.btn-outline:hover {
     background-color: rgba(255, 255, 255, 0.1);
     border-color: #3498db;
     color: #3498db;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Información del usuario */
-.text-info {
-  text-align: center;
-  padding: 3px 10px ;
-  border: 1px solid;
-  border-radius: 5px;
+/* Botón de tema */
+.theme-toggle-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
 }
 
-/* Estilos específicos para pantallas muy pequeñas */
-@media (max-width: 380px) {
-    .navbar-title{
-      font-size: 1.1rem;
-    }
+/* ============================================
+   DROPDOWN DE USUARIO (Mobile First)
+   Estilos con prioridad - !important cuando es necesario
+   ============================================ */
+
+.dropdown-user {
+    position: relative;
+    width: 100%;
+    margin: 5px 0;
 }
 
-
-/* Estilos específicos para móviles */
-@media (max-width: 991.98px) {
-    .navbar-collapse {
-        border-radius: 10px;
-        margin-top: 15px;
-        padding: 15px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .navbar-nav {
-        padding: 10px 0;
-    }
-    
-    .nav-item {
-        margin: 2px 0;
-        width: 100%;
-    }
-    
-    .nav-link {
-        padding: 12px 15px !important;
-        margin: 5px 0;
-        display: block;
-        text-align: center;
-        border-radius: 8px;
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-    
-    /* Separación entre enlaces en móviles */
-    .nav-link:not(:last-child) {
-        margin-bottom: 10px;
-    }
-    
-    .btn-outline-light {
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-    }
-    
+/* Toggle personalizado del dropdown */
+.dropdown-toggle-custom {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+    padding: 12px 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+    text-decoration: none !important;
+    color: inherit !important;
 }
 
-/* Estilos para pantallas grandes */
-@media (min-width: 992px) {
-    .navbar-nav {
-        gap: 10px;
-    }
-    
-    .nav-item:last-child{
-      margin-left: 15px;
-    }
-
-    .navbar-title{
-      font-size: larger;
-    }    
-
+.dropdown-toggle-custom::after {
+    display: none !important; /* Ocultamos la flecha nativa de Bootstrap */
 }
 
-h1, h2, h3 {
-    color: #333;
-}
-
-.fs-custom-7 {
+.dropdown-arrow {
+    transition: transform 0.3s ease;
     font-size: 0.8rem;
 }
 
-/* Estilos para la página de inicio */
+.dropdown-toggle-custom[aria-expanded="true"] .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.user-name {
+    font-weight: 500;
+}
+
+/* Menú desplegable en móvil */
+.dropdown-menu-custom {
+    width: calc(100% - 30px) !important;
+    margin: 10px auto !important;
+    left: 15px !important;
+    right: 15px !important;
+    top: 100% !important;
+    transform: translateY(0) !important;
+    background-color: var(--bs-dropdown-bg, #fff);
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    padding: 8px 0 !important;
+    z-index: 1050 !important;
+}
+
+/* Header del dropdown */
+.dropdown-header {
+    padding: 12px 16px;
+    text-align: center;
+}
+
+.dropdown-header .user-email {
+    font-size: 0.85rem;
+    word-break: break-word;
+    margin-top: 4px;
+    color: var(--bs-gray-700);
+}
+
+/* Item de logout */
+.dropdown-item-logout {
+    padding: 10px 16px !important;
+    text-align: center !important;
+    color: #dc3545 !important;
+    transition: all 0.3s ease !important;
+}
+
+.dropdown-item-logout:hover {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* ============================================
+   PÁGINA DE INICIO (Mobile First)
+   ============================================ */
 
 .landing-page {
     overflow-x: hidden;
@@ -181,7 +238,7 @@ h1, h2, h3 {
 
 .hero-section {
     position: relative;
-    margin-top: -1rem;
+    padding: 3rem 1rem;
 }
 
 .text-gradient {
@@ -192,7 +249,6 @@ h1, h2, h3 {
 }
 
 .stat-card {
-    background: white;
     border-radius: 1rem;
     padding: 2rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -201,49 +257,18 @@ h1, h2, h3 {
 
 .stat-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    border-color: transparent;
 }
 
 .stat-number {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #4f46e5;
     margin-bottom: 0.5rem;
 }
 
 .stat-label {
-    color: #6b7280;
     font-size: 1rem;
-}
-
-.feature-card {
-    border-radius: 1rem;
-    transition: all 0.3s ease;
-}
-
-[data-bs-theme="light"]{
-    .feature-card, .step-card, .benefit-item {
-      background-color: #f8f9fa;
-      border: 1px solid #e5e7eb;
-    }
-    .hero-section {
-      background-color: #e5e7eb;
-    }
-}
-
-[data-bs-theme="dark"] {
-    .feature-card, .step-card, .benefit-item {
-      background-color: #2c3e50;
-      border: 1px solid #e5e7eb;
-    }
-    .hero-section {
-      background-color: #2c3e50;
-    }
-}
-
-.feature-card:hover, .step-card:hover, .benefit-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-    border-color: transparent;
 }
 
 .feature-icon {
@@ -297,58 +322,477 @@ h1, h2, h3 {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-@media (max-width: 768px) {
-    .hero-section {
-    padding: 3rem 1rem;
-    }
-    
-    .display-4 {
+.display-4 {
     font-size: 2rem;
+}
+
+.lead {
+    font-size: 1.1rem;
+}
+
+.fs-custom-sm-7 {
+    font-size: 0.8rem;
+}
+
+/* ============================================
+   TEMAS (Light / Dark)
+   ============================================ */
+
+/* TEMA LIGHT */
+[data-bs-theme="light"] {
+    .nav-link {
+        color: #0d6efd;
+    }
+
+    .themed-border {
+        border-color: #dceaff !important;
+    }
+
+    nav.navbar {
+        background-color: #dceaff;
+    }
+
+    .benefit-item {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+    }
+
+    .stat-card {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+    }
+
+    .stat-number {
+        color: #0d6efd;
+    }
+
+    .stat-label {
+        color: #6c757d;
+    }
+
+    .hero-section {
+        background-color: #e5e7eb;
+    }
+
+    .lead {
+        font-size: 1.1rem;
+    }
+
+    .dropdown-menu-custom {
+        background-color: #ffffff !important;
+    }
+}
+
+/* TEMA DARK */
+[data-bs-theme="dark"] {
+    .nav-link {
+        color: #ffffff;
+    }
+
+    .themed-border {
+        border-color: #495057 !important;
+    }
+
+    nav.navbar {
+        background: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%) !important;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .benefit-item {
+        background-color: #34495e;
+        border: 1px solid #e5e7eb;
+    }
+
+    .stat-card {
+        background-color: #34495e;
+        border: 1px solid #e5e7eb;
+    }
+
+    .stat-number {
+        color: #3498db;
+    }
+
+    .stat-label {
+        color: #bdc3c7;
+    }
+
+    .hero-section {
+        background-color: #2c3e50;
+    }
+
+    .dropdown-menu-custom {
+        background-color: #2c3e50 !important;
+        border-color: #495057 !important;
+    }
+
+    .dropdown-header .user-email {
+        color: #adb5bd !important;
+    }
+}
+
+
+/* ============================================
+   FOOTER (Siempre visible en la parte inferior)
+   ============================================ */
+
+.footer {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 110, 253, 0.02) 100%);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(13, 110, 253, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Logo del footer */
+.footer-logo {
+    transition: transform 0.3s ease, filter 0.3s ease;
+    filter: grayscale(20%);
+}
+
+.footer-logo:hover {
+    transform: scale(1.05) rotate(5deg);
+    filter: grayscale(0%);
+}
+
+/* Texto principal del footer */
+.footer-text {
+    font-size: 0.95rem;
+    color: var(--bs-body-color);
+    transition: color 0.3s ease;
+}
+
+/* Corazón animado */
+.footer-heart {
+    display: inline-block;
+    color: #dc3545;
+    animation: heartbeat 1.5s ease infinite;
+    font-size: 1.1rem;
+}
+
+@keyframes heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Marca en el footer */
+.footer-brand {
+    background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: opacity 0.3s ease;
+}
+
+.footer-brand:hover {
+    opacity: 0.8;
+}
+
+/* Copyright */
+.footer-copyright {
+    font-size: 0.75rem;
+    color: var(--bs-secondary-color);
+    margin-top: 0.25rem;
+}
+
+/* Contenedor de enlaces */
+.footer-links {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Enlaces individuales */
+.footer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--bs-body-color);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: rgba(13, 110, 253, 0.05);
+}
+
+.footer-link i {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.footer-link:hover {
+    background: rgba(13, 110, 253, 0.15);
+    transform: translateY(-2px);
+    color: #0d6efd;
+}
+
+.footer-link:hover i {
+    transform: translateY(-2px);
+}
+
+/* Responsive del footer */
+@media (max-width: 767.98px) {
+    .footer {
+        padding: 1.5rem 0;
     }
     
-    .lead {
-    font-size: 1.1rem;
+    .footer-links {
+        gap: 1rem;
+    }
+    
+    .footer-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+    
+    .footer-text {
+        font-size: 0.85rem;
     }
 }
 
-
-
-@media (max-width: 768px) { 
-    .fs-custom-sm-7 {
-        font-size: 0.8rem;
+@media (max-width: 575.98px) {
+    .footer-link span {
+        display: none;
+    }
+    
+    .footer-link i {
+        font-size: 1.3rem;
+        margin: 0;
+    }
+    
+    .footer-link {
+        padding: 0.5rem;
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
+/* Tema oscuro para el footer */
 [data-bs-theme="dark"] {
+    .footer {
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.05) 100%);
+        border-top-color: rgba(52, 152, 219, 0.2);
+    }
 
-  .nav-link {
-    color: #ffffff;
-  }
+    .footer-link {
+        background: rgba(52, 152, 219, 0.1);
+    }
 
-  .themed-border {
-    border-color: #495057 !important;
-  }
+    .footer-link:hover {
+        background: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+    }
+}
 
-  nav.navbar {
-      background: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%) !important;
-      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  }
+/* ============================================
+   ESTILOS PARA DASHBOARD
+   ============================================ */
 
+/* Contenedor de estadísticas apiladas verticalmente */
+.stats-vertical-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+    justify-content: center;
+}
+
+/* Tarjeta individual para cada estadística en modo vertical */
+.stat-card-vertical {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.stat-card-vertical:hover {
+    transform: translateX(5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .stat-card-vertical {
+    background-color: #34495e;
+    border: 1px solid #e5e7eb;
+}
+
+[data-bs-theme="light"] .stat-card-vertical {
+    background-color: #e5e7eb;
+    border: 1px solid #e5e7eb;
+}   
+
+
+/* Ajuste del icono en las estadísticas verticales */
+.stat-icon-vertical {
+    transition: transform 0.3s ease;
+}
+
+.stat-card-vertical:hover .stat-icon-vertical {
+    transform: scale(1.05);
+}
+
+/* Hero section para que ocupe toda la altura de la columna */
+.hero-section {
+    height: 100%;
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 110, 253, 0.02) 100%);
+    transition: all 0.3s ease;
+}
+
+/* Tema oscuro para el hero */
+[data-bs-theme="dark"] .hero-section {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.05) 100%);
+}
+
+/* Ajustes responsivos para móvil */
+@media (max-width: 991.98px) {
+    .stats-vertical-stack {
+        margin-top: 1rem;
+    }
+    
+    .stat-card-vertical:hover {
+        transform: translateY(-3px);
+    }
+    
+    .stat-card-vertical:hover .stat-icon-vertical {
+        transform: scale(1.02);
+    }
+}
+
+/* Ajuste para pantallas muy pequeñas */
+@media (max-width: 575.98px) {
+    .stat-card-vertical .h5 {
+        font-size: 1.1rem;
+    }
+    
+    .stat-icon-vertical {
+        width: 45px !important;
+        height: 45px !important;
+    }
 }
 
 
-[data-bs-theme="light"]{
+/* ============================================
+   MEDIA QUERIES (Tablet y Desktop)
+   ============================================ */
 
-  .nav-link {
-    color: #0d6efd;
-  }
+/* Tablet (pantallas medianas) */
+@media (min-width: 577px) {
+    .dropdown-menu-custom {
+        width: 280px !important;
+        left: auto !important;
+        right: 0 !important;
+        margin: 5px 0 0 !important;
+    }
+}
 
-  .themed-border {
-    border-color: #dceaff !important;
-  }
+/* Desktop (pantallas grandes) */
+@media (min-width: 992px) {
+    /* Reset de estilos móviles */
+    .navbar-collapse {
+        margin-top: 0;
+        padding: 0;
+        box-shadow: none;
+        border: none;
+    }
 
-  nav.navbar {
-    background-color: #dceaff;
-  }
+    .navbar-nav {
+        flex-direction: row;
+        padding: 0;
+        gap: 10px;
+    }
 
+    .nav-item {
+        width: auto;
+        margin: 0;
+    }
+
+    .nav-link {
+        padding: 4px 10px !important;
+        margin: 0 5px;
+        display: inline-block;
+        background-color: transparent;
+    }
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background-color: #3498db;
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .nav-link:not(:last-child) {
+        margin-bottom: 0;
+    }
+
+    /* Botones en desktop */
+    .btn-outline-light,
+    .btn-outline {
+        width: auto;
+        padding: 5px 12px;
+        margin-top: 0;
+    }
+
+    .theme-toggle-btn {
+        margin: 0;
+    }
+
+    /* Dropdown en desktop */
+    .dropdown-user {
+        width: auto;
+        margin: 0;
+    }
+
+    .dropdown-toggle-custom {
+        background: transparent !important;
+        padding: 4px 10px !important;
+        width: auto !important;
+        white-space: nowrap;
+    }
+
+    .dropdown-menu-custom {
+        position: absolute !important;
+    }
+
+    .nav-item:last-child {
+        margin-left: 15px;
+    }
+
+    .navbar-title {
+        font-size: 1rem;
+        line-height: 1.25rem;
+    }
+
+    /* Ajustes de landing page en desktop */
+    .hero-section {
+        padding: 5rem 2rem;
+    }
+
+    .display-4 {
+        font-size: 3.5rem;
+    }
+
+    .lead {
+        font-size: 1.25rem;
+    }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 380px) {
+    .navbar-title {
+        font-size: 0.9rem;
+        line-height: 1.1rem;
+    }
 }

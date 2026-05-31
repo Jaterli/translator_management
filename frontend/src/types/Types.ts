@@ -16,7 +16,8 @@ export interface Translator {
   files: {
       cv_file?: string; 
       voice_note?: string; 
-  }    
+  }   
+  approved_combinations?: LanguageCombinationApproval[]; // Añade esta línea   
 }
 
 
@@ -36,6 +37,48 @@ export interface LanguageCombination {
   price_per_word: number;
   sworn_price_per_word?: number;
   price_per_hour?: number;}
+
+export interface LanguageCombinationApproval {
+  id: number;
+  superuser: number;
+  superuser_email: string;
+  translator: number;
+  translator_name: string;
+  language_combination: number;
+  combination_details: string;
+  approved_at: string;
+  is_approved: boolean;
+  notes: string;
+}
+
+export interface ApprovedCombinationsResponse {
+    success: boolean;
+    count: number;
+    data: LanguageCombinationApproval[];
+}
+
+export interface Language {
+    code: string;
+    name: string;
+}
+
+export interface AvailableLanguagesResponse {
+    success: boolean;
+    source_languages: Language[];
+    target_languages: Language[];
+    total_sources: number;
+    total_targets: number;
+}
+
+export interface DashboardStats {
+    total_translators: number;
+    active_translators: number;
+    total_combinations: number;
+    total_approved_combinations: number;
+    total_saved_queries: number;
+    popular_language_pairs: Array<{ pair: string; count: number }>;
+    recent_queries: Array<{ id: number; name: string; created_at: string }>;    
+}
 
 export interface Field {
   name: string;
