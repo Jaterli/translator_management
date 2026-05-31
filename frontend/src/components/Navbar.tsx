@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.tsx';
+import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignOutAlt, faBars, faTimes, faSun, faMoon} from '@fortawesome/free-solid-svg-icons';
-import { useTheme } from "../context/ThemeContext.tsx";
+import { faSignOutAlt, faBars, faTimes, faSun, faMoon, faHome } from '@fortawesome/free-solid-svg-icons';
+import { useTheme } from "../context/ThemeContext";
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
           className={({ isActive }) => 
             `navbar-brand d-flex align-items-center ${isActive ? 'active' : ''}`
           } 
-          to="/"
+          to={isAuthenticated ? "/dashboard" : "/"}
           end
         >
           <img 
@@ -49,6 +49,17 @@ const Navbar: React.FC = () => {
           <ul className="navbar-nav ms-auto">
             {isAuthenticated && user && (
               <>          
+                <li className="nav-item">
+                  <NavLink 
+                    className={({ isActive }) => 
+                      `nav-link ${isActive ? 'active' : ''}`
+                    }
+                    to="/dashboard"
+                  >
+                    <FontAwesomeIcon icon={faHome} className="me-1" />
+                    Inicio
+                  </NavLink>
+                </li>
                 <li className="nav-item">
                   <NavLink 
                     className={({ isActive }) => 
@@ -103,7 +114,7 @@ const Navbar: React.FC = () => {
                 <NavLink 
                   to="/login" 
                   className={({ isActive }) => 
-                    `btn btn-outline-light ${isActive ? 'active' : ''}`
+                    `btn btn-outline ${isActive ? 'active' : ''}`
                   }
                 >
                   Login
