@@ -5,9 +5,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    // proxy: {
-    //   '/api': 'http://localhost:8000', // Proxy hacia el backend Django
-    // },
+    watch: {
+      usePolling: true,
+    },  
+    hmr: {
+      overlay: true, // Muestra errores en el navegador
+    },      
     port: 5173,
     strictPort: true,
     open: true,    

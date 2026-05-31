@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir -r requirements.txt gunicorn
 # Copiar el resto del código
 COPY ./backend /app/
 
-# Script de entrada (explicado abajo)
+# Script de entrada para ejecutar Gunicorn
 COPY ./docker/backend/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

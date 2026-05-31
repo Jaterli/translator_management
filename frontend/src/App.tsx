@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Footer from "./components/Footer.tsx";
 import TranslatorDetail from './pages/TranslatorDetail.tsx';
+import LandingPage from './pages/LandingPage.tsx';
 
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
@@ -23,8 +24,9 @@ const App: React.FC = () => {
         <Navbar />
           <div className="container-xxl mt-5">
           <Routes>
+            <Route path="/" element={<LandingPage />} />   
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
             <Route path="/query-form" element={<PrivateRoute><SQLQueryForm /></PrivateRoute>} />
             <Route path="/list-queries" element={<PrivateRoute><QueryList /></PrivateRoute>} />
             <Route path="/query-results/:queryId?" element={<PrivateRoute><QueryResults /></PrivateRoute>} />
