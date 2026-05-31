@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
           className={({ isActive }) => 
             `navbar-brand d-flex align-items-center ${isActive ? 'active' : ''}`
           } 
-          to={isAuthenticated ? "/dashboard" : "/"}
+          to="/"
           end
         >
           <img 
@@ -57,7 +57,7 @@ const Navbar: React.FC = () => {
                     to="/dashboard"
                   >
                     <FontAwesomeIcon icon={faHome} className="me-1" />
-                    Inicio
+                    Dashboard
                   </NavLink>
                 </li>
                 <li className="nav-item">
